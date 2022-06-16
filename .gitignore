@@ -1,7 +1,11 @@
-# intellij IDEA#
+# intellij IDEA
 .idea
 *.iws
 *.iml
 *.ipr
 
+#target
 target/
+
+#日志文件
+/log/

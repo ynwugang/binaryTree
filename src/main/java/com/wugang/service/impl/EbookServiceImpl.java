@@ -1,21 +1,26 @@
 package com.wugang.service.impl;
 
-import com.wugang.mapper.TestMapper;
-import com.wugang.pojo.Test;
-import com.wugang.service.TestService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wugang.mapper.EbookMapper;
+import com.wugang.pojo.Ebook;
+import com.wugang.pojo.EbookExample;
+import com.wugang.request.EbookRequest;
+import com.wugang.service.EbookService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class TestServiceImpl implements TestService {
+public class EbookServiceImpl implements EbookService {
 
-    @Autowired
-    private TestMapper testMapper;
+    @Resource
+    private EbookMapper ebookMapper;
 
     @Override
-    public List<Test> queryList() {
-        return testMapper.queryList();
+    public List<Ebook> queryList(Ebook ebook) {
+        //校验ebook信息
+
+        //执行查询
+        return ebookMapper.queryList(ebook);
     }
 }

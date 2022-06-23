@@ -9,3 +9,6 @@ target/
 
 #日志文件
 /log/
+
+#vue依赖
+/web/node_modules/

@@ -1,10 +1,11 @@
 package com.wugang.service;
 
-import com.wugang.pojo.Test;
+import com.wugang.pojo.Ebook;
+import com.wugang.request.EbookRequest;
 
 import java.util.List;
 
-public interface TestService {
+public interface EbookService {
 
-    List<Test> queryList();
+    List<Ebook> queryList(Ebook ebook);
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wugang.mapper.EbookMapper">
+    <select id="queryList" parameterType="Ebook" resultType="Ebook">
+        select *
+        from ebook
+        where 1=1
+        <if test="id != null and id != ''">
+            <bind name="pId" value="'%' + id + '%'"/>
+            and id like #{pid}
+        </if>
+        <if test="name != null and name != ''">
+            <bind name="pName" value="'%' + name + '%'"/>
+            and name like #{pName}
+        </if>
+        <if test="category1Id != null and category1Id != ''">
+            and category1_id = #{category1Id}
+        </if>
+        <if test="category2Id != null and category2Id != ''">
+            and category2_id like #{category2Id}
+        </if>
+        <if test="description != null and description != ''">
+            <bind name="pDescription" value="'%' + description + '%'"/>
+            and description like #{pDescription}
+        </if>
+    </select>
+</mapper>

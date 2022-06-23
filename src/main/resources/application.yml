@@ -1,2 +1,23 @@
+#\u9879\u76EE\u7AEF\u53E3
 server:
   port: 8080
+
+#\u6570\u636E\u6E90\u914D\u7F6E
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/binaryTree?useUnicode=true&characterEncoding=UTF-8
+    username: binaryTree
+    password: 123456
+
+#mybatis\u914D\u7F6E
+mybatis:
+  type-aliases-package: com.wugang.pojo
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  #config-location: classpath:mybatis/mybatis-config.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.wugang.mapper: debug

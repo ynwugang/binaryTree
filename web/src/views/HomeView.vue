@@ -1,9 +1,19 @@
 <template>
-  <div class="home">
-    <el-button type="danger">Danger</el-button>
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-  </div>
+  <el-container>
+    <el-aside width="200px">Aside
+      <el-row>
+        <el-col style="background-color: red" :span="24">
+          <div class="grid-content ep-bg-purple-dark"/>111
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col style="background-color: red" :span="24">
+          <div class="grid-content ep-bg-purple-dark"/>222
+        </el-col>
+      </el-row>
+    </el-aside>
+    <el-main>Main</el-main>
+  </el-container>
 </template>
 
 <script lang="ts">

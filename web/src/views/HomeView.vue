@@ -175,13 +175,10 @@ export default defineComponent({
     HelloWorld,
   },
   setup() {
-    console.log("setup1234");
-
     const ebooks = ref();
 
     onMounted(() => {
-      console.log("onMounted");
-      axios.get("http://localhost:8080/ebook/list")
+      axios.get(process.env.VUE_APP_SERVER + "/ebook/list")
           .then((response) => {
             const data = response.data;
             ebooks.value = data.content;

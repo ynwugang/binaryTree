@@ -18,3 +18,6 @@ app.mount('#app')
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
+
+console.log("环境：", process.env.NODE_ENV);
+console.log("服务端地址：", process.env.VUE_APP_SERVER);

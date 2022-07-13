@@ -8,6 +8,9 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+/**
+ * 过滤器
+ */
 @Component
 public class LogFilter implements Filter {
 

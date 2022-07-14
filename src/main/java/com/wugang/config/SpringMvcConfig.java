@@ -10,16 +10,16 @@ import javax.annotation.Resource;
 @Configuration
 public class SpringMvcConfig implements WebMvcConfigurer {
 
-    //注入拦截器
-    @Resource
-    LogInterceptor logInterceptor;
-
-    /**
-     * 实现addInterceptors()方法，添加过滤器
-     * @param registry
-     */
-    public void addInterceptors(InterceptorRegistry registry){
-        registry.addInterceptor(logInterceptor)
-                .addPathPatterns("/**");
-    }
+//    //注入拦截器
+//    @Resource
+//    LogInterceptor logInterceptor;
+//
+//    /**
+//     * 实现addInterceptors()方法，添加过滤器
+//     * @param registry
+//     */
+//    public void addInterceptors(InterceptorRegistry registry){
+//        registry.addInterceptor(logInterceptor)
+//                .addPathPatterns("/**");
+//    }
 }

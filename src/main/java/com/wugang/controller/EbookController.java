@@ -3,6 +3,7 @@ package com.wugang.controller;
 import com.wugang.pojo.Ebook;
 import com.wugang.request.EbookRequest;
 import com.wugang.response.CommonResponse;
+import com.wugang.response.PageResponse;
 import com.wugang.service.impl.EbookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,8 @@ public class EbookController {
     private EbookServiceImpl ebookService;
 
     @GetMapping("/list")
-    @ResponseBody
-    public CommonResponse<List<Ebook>> list(Ebook ebook) {
-        List<Ebook> ebooks = ebookService.queryList(ebook);
+    public CommonResponse<PageResponse<Ebook>> list(EbookRequest ebookRequest) {
+        PageResponse<Ebook> ebooks = ebookService.queryList(ebookRequest);
         return new CommonResponse(ebooks);
     }
 }

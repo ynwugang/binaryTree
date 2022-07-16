@@ -68,13 +68,19 @@
           </template>
         </el-table-column>
       </el-table>
+
       <el-pagination
-          :hide-on-single-page="true"
-          :small="true"
-          :page-size="20"
-          layout="prev, pager, next"
-          :total="1000"
-          style="float: right"
+          v-model:currentPage="pagination.current"
+          v-model:page-size="pagination.pageSize"
+          :hide-on-single-page="pagination.hideOnSinglePage"
+          :page-sizes="[3, 5, 15, 20]"
+          :small="pagination.small"
+          :disabled="pagination.disabled"
+          :background="pagination.background"
+          layout="total, sizes, pager"
+          :total="pagination.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
       />
 
     </el-main>
@@ -94,32 +100,35 @@ export default ({
     const ebooks = ref();
     const pagination = ref({
       current: 1,
-      pageSize: 10,
-      total: 0
+      pageSize: 3,
+      total: 0,
+      small: false,
+      background: false,
+      disabled: false,
+      hideOnSinglePage: false
     });
 
     /**
      * 数据查询
      **/
-    const handleQuery = () => {
-      // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
-      ebooks.value = [];
-      axios.get("/ebook/list"
-          //     , {
-          //   params: {
-          //     page: params.page,
-          //     size: params.size,
-          //     name: param.value.name
-          //   }
-          // }
+    const handleQuery = (params: any) => {
+      axios.get("/ebook/list", {
+            params: {
+              page: params.page,
+              size: params.size,
+              name: param.value.name
+            }
+          }
       ).then((response) => {
+        // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
+        ebooks.value = [];
         const data = response.data;
         if (data.success) {
-          ebooks.value = data.content;
+          ebooks.value = data.content.list;
 
-          // // 重置分页按钮
-          // pagination.value.current = params.page;
-          // pagination.value.total = data.content.total;
+          // 重置分页按钮
+          pagination.value.current = params.page;
+          pagination.value.total = data.content.total;
         } else {
           ElMessage.error(data.message);
         }
@@ -127,10 +136,42 @@ export default ({
     };
 
     onMounted(() => {
-      handleQuery();
+      handleQuery(
+          {
+            page: pagination.value.current,
+            size: pagination.value.pageSize
+          });
     });
 
-    interface User {
+    /**
+     * 每页显示条数改变
+     * @param val
+     */
+    const handleSizeChange = (val: number) => {
+      console.log(`${val} items per page`)
+      handleQuery(
+          {
+            page: pagination.value.current,
+            size: val
+          }
+      )
+    }
+
+    /**
+     * 页数改变
+     * @param val
+     */
+    const handleCurrentChange = (val: number) => {
+      console.log(`current page: ${val}`)
+      handleQuery(
+          {
+            page: val,
+            size: pagination.value.pageSize
+          }
+      )
+    }
+
+    interface ebook {
       id: string
       name: string
       category1Id: string
@@ -140,20 +181,33 @@ export default ({
       docCount: string
       viewCount: string
       voteCount: string
-      // date: string
-      // name: string
-      // address: string
     }
 
-    const handleEdit = (index: number, row: User) => {
-      console.log(index, row)
+    /**
+     * 编辑按钮
+     * @param index
+     * @param row
+     */
+    const handleEdit = (index: number, row: ebook) => {
+      console.log(index, row.id)
     }
-    const handleDelete = (index: number, row: User) => {
+
+    /**
+     * 删除按钮
+     * @param index
+     * @param row
+     */
+    const handleDelete = (index: number, row: ebook) => {
       console.log(index, row)
     }
 
     return {
-      ebooks
+      ebooks,
+      pagination,
+      handleSizeChange,
+      handleCurrentChange,
+      handleEdit,
+      handleDelete
     };
   }
 

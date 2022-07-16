@@ -13,6 +13,9 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 //axios
 import axios from "axios";
 
+//element-plus 国际化
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+
 //修改axios的baseURL为配置文件中定义的服务端地址
 axios.defaults.baseURL = process.env.VUE_APP_SERVER;
 
@@ -35,7 +38,7 @@ axios.interceptors.response.use(function (response){
 
 const app = createApp(App)
 
-app.use(store).use(router).use(ElementPlus)
+app.use(store).use(router).use(ElementPlus, {locale: zhCn})
 app.mount('#app')
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

@@ -1,12 +1,13 @@
 package com.wugang.service;
 
 import com.wugang.pojo.Ebook;
-import com.wugang.request.EbookRequest;
+import com.wugang.request.EbookQueryRequest;
+import com.wugang.request.EbookSaveRequest;
 import com.wugang.response.PageResponse;
-
-import java.util.List;
 
 public interface EbookService {
 
-    PageResponse<Ebook> queryList(EbookRequest ebookRequest);
+    PageResponse<Ebook> queryList(EbookQueryRequest ebookRequest);
+
+    void saveEbook(EbookSaveRequest ebookRequest);
 }

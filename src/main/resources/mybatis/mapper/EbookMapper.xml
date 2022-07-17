@@ -3,6 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wugang.mapper.EbookMapper">
+    <!-- 查询电子书列表 -->
     <select id="queryList" parameterType="Ebook" resultType="Ebook">
         select *
         from ebook
@@ -26,4 +27,24 @@
             and description like #{pDescription}
         </if>
     </select>
+
+    <!-- 更新电子书 -->
+    <update id="updateEbook" parameterType="Ebook">
+        update ebook
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="category1Id != null and category1Id != ''">
+                category1_id = #{category1Id}
+            </if>
+            <if test="category2Id != null and category2Id != ''">
+                category2_id = #{category2Id}
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 </mapper>

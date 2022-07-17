@@ -4,14 +4,15 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wugang.mapper.EbookMapper;
 import com.wugang.pojo.Ebook;
-import com.wugang.pojo.EbookExample;
-import com.wugang.request.EbookRequest;
+import com.wugang.request.EbookQueryRequest;
+import com.wugang.request.EbookSaveRequest;
 import com.wugang.response.PageResponse;
 import com.wugang.service.EbookService;
 import com.wugang.util.CopyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -25,8 +26,13 @@ public class EbookServiceImpl implements EbookService {
     @Resource
     private EbookMapper ebookMapper;
 
+    /**
+     * 查询电子书列表
+     * @param ebookRequest
+     * @return
+     */
     @Override
-    public PageResponse<Ebook> queryList(EbookRequest ebookRequest) {
+    public PageResponse<Ebook> queryList(EbookQueryRequest ebookRequest) {
 //        //校验ebookRequest信息
 //        if (StringUtils.hasLength(ebookRequest.getName())){
 //
@@ -50,5 +56,22 @@ public class EbookServiceImpl implements EbookService {
         pageResponse.setList(ebookList);
 
         return pageResponse;
+    }
+
+    /**
+     * 保存电子书修改
+     * @param ebookRequest
+     * @return
+     */
+    @Override
+    public void saveEbook(EbookSaveRequest ebookRequest) {
+        Ebook ebook = CopyUtil.copy(ebookRequest, Ebook.class);
+
+        if (ObjectUtils.isEmpty(ebookRequest.getId())){
+            //新增
+        } else {
+            //更新
+            ebookMapper.updateEbook(ebook);
+        }
     }
 }

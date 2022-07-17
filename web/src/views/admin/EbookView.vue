@@ -85,7 +85,7 @@
       />
 
       <!-- 弹出层-编辑框 -->
-      <el-dialog v-model="dialogFormVisible" title="电子书编辑">
+      <el-dialog v-loading="loading" v-model="dialogFormVisible" title="电子书编辑">
         <el-form :model="form">
           <el-form-item label="封面" :label-width="formLabelWidth">
             <el-input v-model="form.cover" autocomplete="off" />
@@ -112,7 +112,7 @@
         <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false"
+        <el-button type="primary" @click="saveEbook"
         >Confirm</el-button
         >
       </span>
@@ -163,6 +163,7 @@ export default ({
 
           // 重置分页按钮
           pagination.value.current = params.page;
+          pagination.value.pageSize = params.size;
           pagination.value.total = data.content.total;
         } else {
           ElMessage.error(data.message);
@@ -221,8 +222,39 @@ export default ({
     //编辑弹出表单相关
     const dialogFormVisible = ref(false)
     const formLabelWidth = '140px'
-
+    //表单数据
     const form = ref();
+    //loading
+    const loading = ref(true);
+
+    /**
+     * 保存修改
+     * @param index
+     * @param row
+     */
+    const saveEbook = () => {
+      debugger;
+      console.log(form.value);
+      loading.value = true;
+      axios.post("/ebook/saveEbook", form.value).then((response) => {
+        //获取返回值
+        const data = response.data;
+        if (data.success){
+          //停止加载动画
+          loading.value = false;
+          //关闭弹出的表单
+          dialogFormVisible.value = false;
+
+          //重新加载列表数据
+          handleQuery(
+              {
+                page: pagination.value.current,
+                size: pagination.value.pageSize
+              }
+          );
+        }
+      });
+    }
 
     /**
      * 编辑按钮
@@ -232,6 +264,7 @@ export default ({
     const handleEdit = (index: number, row: ebook) => {
       console.log(index, row.id)
       dialogFormVisible.value = true;
+      loading.value = false;
       form.value = row;
     }
 
@@ -253,7 +286,9 @@ export default ({
       handleDelete,
       dialogFormVisible,
       formLabelWidth,
-      form
+      form,
+      loading,
+      saveEbook
     };
   }
 

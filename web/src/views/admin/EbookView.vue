@@ -69,6 +69,7 @@
         </el-table-column>
       </el-table>
 
+      <!-- 分页组件 -->
       <el-pagination
           v-model:currentPage="pagination.current"
           v-model:page-size="pagination.pageSize"
@@ -83,12 +84,46 @@
           @current-change="handleCurrentChange"
       />
 
+      <!-- 弹出层-编辑框 -->
+      <el-dialog v-model="dialogFormVisible" title="电子书编辑">
+        <el-form :model="form">
+          <el-form-item label="封面" :label-width="formLabelWidth">
+            <el-input v-model="form.cover" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="名称" :label-width="formLabelWidth">
+            <el-input v-model="form.name" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="分类一" :label-width="formLabelWidth">
+            <el-input v-model="form.category1Id" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="分类二" :label-width="formLabelWidth">
+            <el-input v-model="form.category2Id" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="描述" :label-width="formLabelWidth">
+            <el-input v-model="form.description" autocomplete="off" />
+          </el-form-item>
+<!--          <el-form-item label="名称" :label-width="formLabelWidth">-->
+<!--            <el-select v-model="form.name" placeholder="Please select a zone">-->
+<!--              <el-option label="Zone No.1" value="shanghai" />-->
+<!--              <el-option label="Zone No.2" value="beijing" />-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+        </el-form>
+        <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false"
+        >Confirm</el-button
+        >
+      </span>
+        </template>
+      </el-dialog>
     </el-main>
   </el-container>
 </template>
 
 <script lang="ts">
-import {ref, onMounted} from "vue";
+import {reactive, ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage} from 'element-plus'
 
@@ -183,6 +218,12 @@ export default ({
       voteCount: string
     }
 
+    //编辑弹出表单相关
+    const dialogFormVisible = ref(false)
+    const formLabelWidth = '140px'
+
+    const form = ref();
+
     /**
      * 编辑按钮
      * @param index
@@ -190,6 +231,8 @@ export default ({
      */
     const handleEdit = (index: number, row: ebook) => {
       console.log(index, row.id)
+      dialogFormVisible.value = true;
+      form.value = row;
     }
 
     /**
@@ -207,7 +250,10 @@ export default ({
       handleSizeChange,
       handleCurrentChange,
       handleEdit,
-      handleDelete
+      handleDelete,
+      dialogFormVisible,
+      formLabelWidth,
+      form
     };
   }
 

@@ -10,4 +10,6 @@ public interface EbookService {
     PageResponse<Ebook> queryList(EbookQueryRequest ebookRequest);
 
     void saveEbook(EbookSaveRequest ebookRequest);
+
+    void deleteEbook(String ebookId);
 }

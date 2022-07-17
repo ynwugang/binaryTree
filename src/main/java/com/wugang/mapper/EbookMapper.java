@@ -22,4 +22,18 @@ public interface EbookMapper {
      * @return
      */
     int updateEbook(Ebook ebook);
+
+    /**
+     * 新增Ebook
+     * @param ebook
+     * @return
+     */
+    int insertEbook(Ebook ebook);
+
+    /**
+     * 根据ID删除Ebook
+     * @param id
+     * @return
+     */
+    int deleteEbookById(String id);
 }

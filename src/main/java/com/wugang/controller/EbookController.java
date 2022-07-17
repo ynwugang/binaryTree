@@ -37,4 +37,15 @@ public class EbookController {
         ebookService.saveEbook(ebookRequest);
         return CommonResponse.success();
     }
+
+    /**
+     * 删除电子书
+     * @param ebookId
+     * @return
+     */
+    @DeleteMapping("/deleteEbook/{id}")
+    public CommonResponse deleteEbook(@PathVariable("id") String ebookId) {
+        ebookService.deleteEbook(ebookId);
+        return CommonResponse.success();
+    }
 }

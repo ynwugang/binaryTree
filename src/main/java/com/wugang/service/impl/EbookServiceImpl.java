@@ -9,8 +9,10 @@ import com.wugang.request.EbookSaveRequest;
 import com.wugang.response.PageResponse;
 import com.wugang.service.EbookService;
 import com.wugang.util.CopyUtil;
+import com.wugang.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -25,6 +27,9 @@ public class EbookServiceImpl implements EbookService {
 
     @Resource
     private EbookMapper ebookMapper;
+
+    @Resource
+    private SnowFlake snowFlake;
 
     /**
      * 查询电子书列表
@@ -69,9 +74,23 @@ public class EbookServiceImpl implements EbookService {
 
         if (ObjectUtils.isEmpty(ebookRequest.getId())){
             //新增
+            ebook.setId(String.valueOf(snowFlake.nextId()));
+            ebook.setDocCount(0);
+            ebook.setViewCount(0);
+            ebook.setVoteCount(0);
+            ebookMapper.insertEbook(ebook);
         } else {
             //更新
             ebookMapper.updateEbook(ebook);
         }
+    }
+
+    /**
+     * 删除电子书
+     * @param ebookId
+     */
+    @Override
+    public void deleteEbook(String ebookId) {
+        ebookMapper.deleteEbookById(ebookId);
     }
 }

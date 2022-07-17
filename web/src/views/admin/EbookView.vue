@@ -2,6 +2,15 @@
   <el-container style="padding: 5px 20px">
     <el-main style="padding: 0">
 
+      <p>
+        <el-button
+            size="small"
+            type="success"
+            @click="add"
+        >新增
+        </el-button>
+      </p>
+
       <el-table
           :data="ebooks"
           style="width: 100%"
@@ -53,18 +62,15 @@
             <el-button
                 size="small"
                 type="primary"
-                plain
                 @click="handleEdit(scope.$index, scope.row)"
             >编辑
-            </el-button
-            >
+            </el-button>
             <el-button
                 size="small"
                 type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
+                @click="openDelete(scope.$index, scope.row)"
             >删除
-            </el-button
-            >
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -88,34 +94,26 @@
       <el-dialog v-loading="loading" v-model="dialogFormVisible" title="电子书编辑">
         <el-form :model="form">
           <el-form-item label="封面" :label-width="formLabelWidth">
-            <el-input v-model="form.cover" autocomplete="off" />
+            <el-input v-model="form.cover" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="名称" :label-width="formLabelWidth">
-            <el-input v-model="form.name" autocomplete="off" />
+            <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="分类一" :label-width="formLabelWidth">
-            <el-input v-model="form.category1Id" autocomplete="off" />
+            <el-input v-model="form.category1Id" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="分类二" :label-width="formLabelWidth">
-            <el-input v-model="form.category2Id" autocomplete="off" />
+            <el-input v-model="form.category2Id" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="描述" :label-width="formLabelWidth">
-            <el-input v-model="form.description" autocomplete="off" />
+            <el-input v-model="form.description" autocomplete="off"/>
           </el-form-item>
-<!--          <el-form-item label="名称" :label-width="formLabelWidth">-->
-<!--            <el-select v-model="form.name" placeholder="Please select a zone">-->
-<!--              <el-option label="Zone No.1" value="shanghai" />-->
-<!--              <el-option label="Zone No.2" value="beijing" />-->
-<!--            </el-select>-->
-<!--          </el-form-item>-->
         </el-form>
         <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="saveEbook"
-        >Confirm</el-button
-        >
-      </span>
+          <span class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取消</el-button>
+            <el-button type="primary" @click="openSave">确认</el-button>
+          </span>
         </template>
       </el-dialog>
     </el-main>
@@ -125,7 +123,7 @@
 <script lang="ts">
 import {reactive, ref, onMounted} from "vue";
 import axios from "axios";
-import {ElMessage} from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 export default ({
   name: 'EbookView',
@@ -159,6 +157,7 @@ export default ({
         ebooks.value = [];
         const data = response.data;
         if (data.success) {
+          console.log(data);
           ebooks.value = data.content.list;
 
           // 重置分页按钮
@@ -227,19 +226,44 @@ export default ({
     //loading
     const loading = ref(true);
 
+    //保存确认对话框
+    const openSave = () => {
+      ElMessageBox.confirm(
+          '确认保存吗?',
+          '提示',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '再想想',
+            type: 'warning',
+          }
+      ).then(() => {
+        //执行保存操作
+        saveEbook();
+        //给出信息提示
+        ElMessage({
+          type: 'success',
+          message: '保存成功',
+        })
+      }).catch(() => {
+
+        // ElMessage({
+        //   type: 'info',
+        //   message: 'Delete canceled',
+        // })
+      })
+    }
+
     /**
      * 保存修改
      * @param index
      * @param row
      */
     const saveEbook = () => {
-      debugger;
-      console.log(form.value);
       loading.value = true;
       axios.post("/ebook/saveEbook", form.value).then((response) => {
         //获取返回值
         const data = response.data;
-        if (data.success){
+        if (data.success) {
           //停止加载动画
           loading.value = false;
           //关闭弹出的表单
@@ -269,26 +293,78 @@ export default ({
     }
 
     /**
+     * 新增
+     */
+    const add = () => {
+      dialogFormVisible.value = true;
+      form.value = {};
+    }
+
+    /**
+     * 删除确认对话框
+     */
+    const openDelete = (index: number, row: ebook) => {
+      ElMessageBox.confirm(
+          '删除后无法恢复，确定要删除吗?',
+          '警告',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '再想想',
+            type: 'warning',
+          }
+      ).then(() => {
+        //执行保存操作
+        handleDelete(index, row);
+        //给出信息提示
+        ElMessage({
+          type: 'success',
+          message: '删除成功',
+        })
+      }).catch(() => {
+
+        // ElMessage({
+        //   type: 'info',
+        //   message: 'Delete canceled',
+        // })
+      })
+    }
+
+    /**
      * 删除按钮
      * @param index
      * @param row
      */
     const handleDelete = (index: number, row: ebook) => {
       console.log(index, row)
-    }
+      axios.delete("/ebook/deleteEbook/" + row.id)
+          .then((response) => {
+            const data = response.data;
+            if (data.success) {
+              //重新加载列表
+              handleQuery({
+                page: pagination.value.current,
+                size: pagination.value.pageSize
+              });
+            }
+          });
+    };
 
     return {
       ebooks,
       pagination,
       handleSizeChange,
       handleCurrentChange,
+
       handleEdit,
-      handleDelete,
+      add,
+
+      openDelete,
+
       dialogFormVisible,
       formLabelWidth,
       form,
       loading,
-      saveEbook
+      openSave
     };
   }
 

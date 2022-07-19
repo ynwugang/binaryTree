@@ -129,6 +129,7 @@
 import {reactive, ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
+import { Tool } from "@/util/tool";
 
 export default ({
   name: 'EbookView',
@@ -291,10 +292,10 @@ export default ({
      * @param row
      */
     const handleEdit = (index: number, row: ebook) => {
-      console.log(index, row.id)
+      console.log(index, row)
       dialogFormVisible.value = true;
       loading.value = false;
-      form.value = row;
+      form.value = Tool.copy(row);
     }
 
     /**

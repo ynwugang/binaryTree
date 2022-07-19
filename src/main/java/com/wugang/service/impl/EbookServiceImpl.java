@@ -12,10 +12,8 @@ import com.wugang.util.CopyUtil;
 import com.wugang.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -45,8 +43,13 @@ public class EbookServiceImpl implements EbookService {
 
         //将ebookRequest的信息存入到ebook中
         Ebook ebook = CopyUtil.copy(ebookRequest, Ebook.class);
-        //使用PageHelper分页插件实现分页查询
-        PageHelper.startPage(ebookRequest.getPage(), ebookRequest.getSize());
+
+        //校验分页参数
+        if (ebookRequest.getPage() > 0 && ebookRequest.getSize() > 0){
+            //使用PageHelper分页插件实现分页查询
+            PageHelper.startPage(ebookRequest.getPage(), ebookRequest.getSize());
+        }
+
         //执行查询
         List<Ebook> ebookList = ebookMapper.queryList(ebook);
 

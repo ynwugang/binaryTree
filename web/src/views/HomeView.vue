@@ -181,7 +181,7 @@ export default defineComponent({
       axios.get("/ebook/list")
           .then((response) => {
             const data = response.data;
-            ebooks.value = data.content;
+            ebooks.value = data.content.list;
           });
     });
 

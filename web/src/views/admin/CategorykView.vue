@@ -3,59 +3,25 @@
     <el-main style="padding: 0">
 
       <!-- 搜索框和查询、新增按钮 -->
-      <el-form :inline="true" :model="param" class="demo-form-inline">
-        <el-form-item style="margin-right: 14px">
-          <el-input v-model="param.name" placeholder="名称" clearable style="width: 200px"/>
-        </el-form-item>
-        <el-form-item style="margin-right: 14px">
-          <el-button type="primary" @click="handleQuery({page: 1, size: pagination.pageSize})">查询</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="success" @click="add">新增</el-button>
-        </el-form-item>
-      </el-form>
+      <p>
+        <el-button type="success" @click="add">新增</el-button>
+      </p>
 
       <!-- 列表数据 -->
-      <el-table :data="ebooks" style="width: 100%" :table-layout="'auto'">
-        <el-table-column label="封面">
-          <template #default="scope">
-            <div style="display: flex; align-items: center; margin-left: 16px">
-              <img
-                  :title="scope.row.id"
-                  style="width: 42px; height: 42px; border-radius: 5px;"
-                  src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-              >
-            </div>
-          </template>
-        </el-table-column>
+      <el-table :data="categorys" style="width: 100%">
         <el-table-column label="名称">
           <template #default="scope">
             <span style="margin-left: 10px">{{ scope.row.name }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="分类一">
+        <el-table-column label="父分类">
           <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.category1Id }}</span>
+            <span style="margin-left: 10px">{{ scope.row.parent }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="分类二">
+        <el-table-column label="排序">
           <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.category2Id }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="文档数">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.docCount }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="阅读数">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.viewCount }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="点赞数">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.voteCount }}</span>
+            <span style="margin-left: 10px">{{ scope.row.sort }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -92,22 +58,16 @@
       />
 
       <!-- 弹出层-编辑框 -->
-      <el-dialog v-loading="loading" v-model="dialogFormVisible" title="电子书编辑">
+      <el-dialog v-loading="loading" v-model="dialogFormVisible" title="分类编辑">
         <el-form :model="form">
-          <el-form-item label="封面" :label-width="formLabelWidth">
-            <el-input v-model="form.cover" autocomplete="off"/>
-          </el-form-item>
           <el-form-item label="名称" :label-width="formLabelWidth">
             <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
-          <el-form-item label="分类一" :label-width="formLabelWidth">
-            <el-input v-model="form.category1Id" autocomplete="off"/>
+          <el-form-item label="父分类" :label-width="formLabelWidth">
+            <el-input v-model="form.parent" autocomplete="off"/>
           </el-form-item>
-          <el-form-item label="分类二" :label-width="formLabelWidth">
-            <el-input v-model="form.category2Id" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item label="描述" :label-width="formLabelWidth">
-            <el-input v-model="form.description" autocomplete="off"/>
+          <el-form-item label="排序" :label-width="formLabelWidth">
+            <el-input v-model="form.sort" autocomplete="off"/>
           </el-form-item>
         </el-form>
         <template #footer>
@@ -128,11 +88,11 @@ import {ElMessage, ElMessageBox} from 'element-plus'
 import { Tool } from "@/util/tool";
 
 export default ({
-  name: 'EbookView',
+  name: 'CategoryView',
   setup() {
     const param = ref();
     param.value = {};
-    const ebooks = ref();
+    const categorys = ref();
     const pagination = ref({
       current: 1,
       pageSize: 3,
@@ -147,7 +107,7 @@ export default ({
      * 数据查询
      **/
     const handleQuery = (params: any) => {
-      axios.get("/ebook/list", {
+      axios.get("/category/list", {
             params: {
               page: params.page,
               size: params.size,
@@ -156,11 +116,11 @@ export default ({
           }
       ).then((response) => {
         // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
-        ebooks.value = [];
+        categorys.value = [];
         const data = response.data;
         if (data.success) {
           console.log(data);
-          ebooks.value = data.content.list;
+          categorys.value = data.content.list;
 
           // 重置分页按钮
           pagination.value.current = params.page;
@@ -208,7 +168,7 @@ export default ({
       )
     }
 
-    interface ebook {
+    interface category {
       id: string
       name: string
       category1Id: string
@@ -240,7 +200,7 @@ export default ({
           }
       ).then(() => {
         //执行保存操作
-        saveEbook();
+        saveCategory();
         //给出信息提示
         ElMessage({
           type: 'success',
@@ -260,9 +220,9 @@ export default ({
      * @param index
      * @param row
      */
-    const saveEbook = () => {
+    const saveCategory = () => {
       loading.value = true;
-      axios.post("/ebook/saveEbook", form.value).then((response) => {
+      axios.post("/category/saveCategory", form.value).then((response) => {
         //获取返回值
         const data = response.data;
         if (data.success) {
@@ -287,7 +247,7 @@ export default ({
      * @param index
      * @param row
      */
-    const handleEdit = (index: number, row: ebook) => {
+    const handleEdit = (index: number, row: category) => {
       console.log(index, row)
       dialogFormVisible.value = true;
       loading.value = false;
@@ -306,7 +266,7 @@ export default ({
     /**
      * 删除确认对话框
      */
-    const openDelete = (index: number, row: ebook) => {
+    const openDelete = (index: number, row: category) => {
       ElMessageBox.confirm(
           '删除后无法恢复，确定要删除吗?',
           '警告',
@@ -337,9 +297,9 @@ export default ({
      * @param index
      * @param row
      */
-    const handleDelete = (index: number, row: ebook) => {
+    const handleDelete = (index: number, row: category) => {
       console.log(index, row)
-      axios.delete("/ebook/deleteEbook/" + row.id)
+      axios.delete("/category/deleteCategory/" + row.id)
           .then((response) => {
             const data = response.data;
             if (data.success) {
@@ -353,7 +313,7 @@ export default ({
     };
 
     return {
-      ebooks,
+      categorys,
       pagination,
       handleSizeChange,
       handleCurrentChange,

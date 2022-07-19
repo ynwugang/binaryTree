@@ -1,10 +1,10 @@
 # 电子书表
 drop table if exists `ebook`;
 create table `ebook` (
-  `id` bigint not null comment 'id',
+  `id` varchar(32) not null comment 'id',
   `name` varchar(50) comment '名称',
-  `category1_id` bigint comment '分类1',
-  `category2_id` bigint comment '分类2',
+  `category1_id` varchar(32) comment '分类1',
+  `category2_id` varchar(32) comment '分类2',
   `description` varchar(200) comment '描述',
   `cover` varchar(200) comment '封面',
   `doc_count` int not null default 0 comment '文档数',
@@ -32,8 +32,8 @@ insert into `test` (id, name, password) values (1, '测试', 'password');
 # 分类
 drop table if exists `category`;
 create table `category` (
-  `id` bigint not null comment 'id',
-  `parent` bigint not null default 0 comment '父id',
+  `id` varchar(32) not null comment 'id',
+  `parent` varchar(32) not null default 0 comment '父id',
   `name` varchar(50) not null comment '名称',
   `sort` int comment '顺序',
   primary key (`id`)

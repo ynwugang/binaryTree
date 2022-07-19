@@ -13,9 +13,9 @@ public class Ebook {
 
     private String name;
 
-    private Long category1Id;
+    private String category1Id;
 
-    private Long category2Id;
+    private String category2Id;
 
     private String description;
 

@@ -295,6 +295,7 @@ export default ({
       console.log(index, row)
       dialogFormVisible.value = true;
       loading.value = false;
+
       form.value = Tool.copy(row);
     }
 

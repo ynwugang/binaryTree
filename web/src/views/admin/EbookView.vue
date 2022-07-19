@@ -2,15 +2,20 @@
   <el-container style="padding: 5px 20px">
     <el-main style="padding: 0">
 
-      <p>
-        <el-button
-            size="small"
-            type="success"
-            @click="add"
-        >新增
-        </el-button>
-      </p>
+      <!-- 搜索框和查询、新增按钮 -->
+      <el-form :inline="true" :model="param" class="demo-form-inline">
+        <el-form-item style="margin-right: 14px">
+          <el-input v-model="param.name" placeholder="名称" clearable style="width: 200px"/>
+        </el-form-item>
+        <el-form-item style="margin-right: 14px">
+          <el-button type="primary" @click="handleQuery({page: 1, size: pagination.pageSize})">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="success" @click="add">新增</el-button>
+        </el-form-item>
+      </el-form>
 
+      <!-- 列表数据 -->
       <el-table
           :data="ebooks"
           style="width: 100%"
@@ -364,7 +369,10 @@ export default ({
       formLabelWidth,
       form,
       loading,
-      openSave
+      openSave,
+
+      param,
+      handleQuery
     };
   }
 

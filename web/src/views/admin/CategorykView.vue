@@ -8,7 +8,10 @@
       </p>
 
       <!-- 列表数据 -->
-      <el-table :data="categorys" style="width: 100%">
+      <el-table :data="categorys" style="width: 100%"
+                row-key="id"
+                border
+      >
         <el-table-column label="名称">
           <template #default="scope">
             <span style="margin-left: 10px">{{ scope.row.name }}</span>
@@ -42,20 +45,6 @@
         </el-table-column>
       </el-table>
 
-      <!-- 分页组件 -->
-      <el-pagination
-          v-model:currentPage="pagination.current"
-          v-model:page-size="pagination.pageSize"
-          :hide-on-single-page="pagination.hideOnSinglePage"
-          :page-sizes="[3, 5, 15, 20]"
-          :small="pagination.small"
-          :disabled="pagination.disabled"
-          :background="pagination.background"
-          layout="total, sizes, pager"
-          :total="pagination.total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-      />
 
       <!-- 弹出层-编辑框 -->
       <el-dialog v-loading="loading" v-model="dialogFormVisible" title="分类编辑">
@@ -82,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import {reactive, ref, onMounted} from "vue";
+import {ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import { Tool } from "@/util/tool";
@@ -90,95 +79,37 @@ import { Tool } from "@/util/tool";
 export default ({
   name: 'CategoryView',
   setup() {
-    const param = ref();
-    param.value = {};
     const categorys = ref();
-    const pagination = ref({
-      current: 1,
-      pageSize: 3,
-      total: 0,
-      small: false,
-      background: false,
-      disabled: false,
-      hideOnSinglePage: false
-    });
 
     /**
      * 数据查询
      **/
-    const handleQuery = (params: any) => {
-      axios.get("/category/list", {
-            params: {
-              page: params.page,
-              size: params.size,
-              name: param.value.name
-            }
+    const handleQuery = () => {
+      axios.get("/category/allList", {
           }
       ).then((response) => {
         // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
         categorys.value = [];
         const data = response.data;
         if (data.success) {
-          console.log(data);
-          categorys.value = data.content.list;
-
-          // 重置分页按钮
-          pagination.value.current = params.page;
-          pagination.value.pageSize = params.size;
-          pagination.value.total = data.content.total;
+          categorys.value = data.content;
         } else {
           ElMessage.error(data.message);
         }
       });
     };
 
-    onMounted(() => {
-      handleQuery(
-          {
-            page: pagination.value.current,
-            size: pagination.value.pageSize
-          });
-    });
-
-    /**
-     * 每页显示条数改变
-     * @param val
-     */
-    const handleSizeChange = (val: number) => {
-      console.log(`${val} items per page`)
-      handleQuery(
-          {
-            page: pagination.value.current,
-            size: val
-          }
-      )
-    }
-
-    /**
-     * 页数改变
-     * @param val
-     */
-    const handleCurrentChange = (val: number) => {
-      console.log(`current page: ${val}`)
-      handleQuery(
-          {
-            page: val,
-            size: pagination.value.pageSize
-          }
-      )
-    }
-
     interface category {
       id: string
+      parent: string
       name: string
-      category1Id: string
-      category2Id: string
-      description: string
-      cover: string
-      docCount: string
-      viewCount: string
-      voteCount: string
+      sort: number
     }
+    
+
+    onMounted(() => {
+      handleQuery();
+    });
 
     //编辑弹出表单相关
     const dialogFormVisible = ref(false)
@@ -200,7 +131,7 @@ export default ({
           }
       ).then(() => {
         //执行保存操作
-        saveCategory();
+        saveCategory(form.value);
         //给出信息提示
         ElMessage({
           type: 'success',
@@ -220,7 +151,7 @@ export default ({
      * @param index
      * @param row
      */
-    const saveCategory = () => {
+    const saveCategory = (row: category) => {
       loading.value = true;
       axios.post("/category/saveCategory", form.value).then((response) => {
         //获取返回值
@@ -232,12 +163,9 @@ export default ({
           dialogFormVisible.value = false;
 
           //重新加载列表数据
-          handleQuery(
-              {
-                page: pagination.value.current,
-                size: pagination.value.pageSize
-              }
-          );
+          handleQuery();
+
+          console.log(categorys.value)
         }
       });
     }
@@ -248,7 +176,6 @@ export default ({
      * @param row
      */
     const handleEdit = (index: number, row: category) => {
-      console.log(index, row)
       dialogFormVisible.value = true;
       loading.value = false;
 
@@ -304,19 +231,13 @@ export default ({
             const data = response.data;
             if (data.success) {
               //重新加载列表
-              handleQuery({
-                page: pagination.value.current,
-                size: pagination.value.pageSize
-              });
+              handleQuery();
             }
           });
     };
 
     return {
       categorys,
-      pagination,
-      handleSizeChange,
-      handleCurrentChange,
 
       handleEdit,
       add,
@@ -329,8 +250,7 @@ export default ({
       loading,
       openSave,
 
-      param,
-      handleQuery
+      handleQuery,
     };
   }
 

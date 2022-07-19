@@ -1,6 +1,7 @@
 package com.wugang.mapper;
 
 import com.wugang.pojo.Category;
+import com.wugang.response.CategoryQueryResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -36,4 +37,10 @@ public interface CategoryMapper {
      * @return
      */
     int deleteCategoryById(String id);
+
+    /**
+     * 获取所有Category
+     * @return
+     */
+    List<CategoryQueryResponse> queryAllList();
 }

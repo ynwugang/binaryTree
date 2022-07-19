@@ -1,8 +1,21 @@
 package com.wugang.request;
 
-public class CategoryQueryRequest extends PageRequest{
-    @Override
-    public String toString() {
-        return "CategoryQueryRequest{} " + super.toString();
-    }
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CategoryQueryRequest{
+
+    /**
+     * id
+     */
+    private String id;
+
+    /**
+     * 父节点id
+     */
+    private String parent;
 }

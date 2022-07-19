@@ -3,6 +3,19 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wugang.mapper.CategoryMapper">
+    <resultMap id="categoryMap" type="com.wugang.response.CategoryQueryResponse">
+        <id column="id" property="id"/>
+        <result column="parent" property="parent"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+        <collection property="children" ofType="com.wugang.pojo.Category">
+            <id column="c_id" property="id"/>
+            <result column="c_parent" property="parent"/>
+            <result column="c_name" property="name"/>
+            <result column="c_sort" property="sort"/>
+        </collection>
+    </resultMap>
+
     <!-- 查询category列表 -->
     <select id="queryList" parameterType="Category" resultType="Category">
         select *
@@ -21,6 +34,22 @@
         <if test="sort != null and sort != ''">
             and sort = #{sort}
         </if>
+        order by sort asc
+    </select>
+
+    <!-- 查询所有的分类信息 -->
+    <select id="queryAllList" resultMap="categoryMap">
+        select a.id,
+               a.parent,
+               a.name,
+               a.sort,
+               b.id as c_id,
+               b.parent as c_parent,
+               b.name as c_name,
+               b.sort as c_sort
+        from category a
+        join category b
+        on b.parent = a.id
     </select>
 
     <!-- 更新category -->
@@ -48,7 +77,9 @@
 
     <!-- 根据ID删除Category -->
     <delete id="deleteCategoryById" parameterType="String">
-        delete from category where id = #{id}
+        delete
+        from category
+        where id = #{id}
     </delete>
 
 </mapper>

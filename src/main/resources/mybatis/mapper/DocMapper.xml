@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wugang.mapper.DocMapper">
+
+    <!-- 查询doc列表 -->
+    <select id="queryList" parameterType="Doc" resultType="Doc">
+        select *
+        from doc
+        where 1=1
+        <if test="id != null and id != ''">
+            and id = #{id}
+        </if>
+        <if test="parent != null and parent != ''">
+            and parent = #{parent}
+        </if>
+        <if test="name != null and name != ''">
+            <bind name="pName" value="'%' + name + '%'"/>
+            and `name` like #{pName}
+        </if>
+        <if test="sort != null and sort != ''">
+            and sort = #{sort}
+        </if>
+        order by sort asc
+    </select>
+
+    <!-- 查询所有的分类信息 -->
+    <select id="queryAllList" resultType="Doc">
+        select
+            *
+        from doc
+        order by sort asc
+    </select>
+
+    <!-- 更新doc -->
+    <update id="updateDoc" parameterType="Doc">
+        update doc
+        <set>
+            <if test="parent != null and parent != ''">
+                parent = #{parent},
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort = #{sort},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 新增Doc -->
+    <insert id="insertDoc" parameterType="Doc">
+        insert into doc (id, parent, `name`, sort)
+        values (#{id}, #{parent}, #{name}, #{sort})
+    </insert>
+
+    <!-- 根据ID删除Doc -->
+    <delete id="deleteDocById" parameterType="String">
+        delete
+        from doc
+        where id = #{id}
+    </delete>
+
+</mapper>

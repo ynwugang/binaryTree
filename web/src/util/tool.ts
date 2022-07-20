@@ -31,7 +31,7 @@ export class Tool {
    * 使用递归将数组转为树形结构
    * 父ID属性为parent
    */
-  public static array2Tree (array: any, parentId: number) {
+  public static array2Tree (array: any, parentId: string) {
     if (Tool.isEmpty(array)) {
       return [];
     }

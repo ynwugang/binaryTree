@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import EbookView from '../views/admin/EbookView.vue'
 import CategorykView from '../views/admin/CategorykView.vue'
+import DocView from "../views/admin/DocView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -28,6 +29,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/admin/category',
     name: 'category',
     component: CategorykView
+  },
+  {
+    path: '/admin/doc',
+    name: 'doc',
+    component: DocView
   }
 ]
 

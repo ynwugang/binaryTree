@@ -33,16 +33,16 @@
             <span style="margin-left: 10px">{{ scope.row.name }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="分类一">
+        <el-table-column label="分类">
           <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.category1Id }}</span>
+            <span style="margin-left: 10px">{{ scope.row.category1Id }}/{{ scope.row.category2Id }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="分类二">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.category2Id }}</span>
-          </template>
-        </el-table-column>
+<!--        <el-table-column label="分类二">-->
+<!--          <template #default="scope">-->
+<!--            <span style="margin-left: 10px">{{ scope.row.category2Id }}</span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column label="文档数">
           <template #default="scope">
             <span style="margin-left: 10px">{{ scope.row.docCount }}</span>
@@ -285,7 +285,13 @@ export default ({
      * @param row
      */
     const saveEbook = () => {
+      //加载动画
       loading.value = true;
+
+      //赋值分类信息
+      form.value.category1Id = categoryIds.value[0];
+      form.value.category2Id = categoryIds.value[1];
+
       axios.post("/ebook/saveEbook", form.value).then((response) => {
         //获取返回值
         const data = response.data;

@@ -5,27 +5,34 @@
 <mapper namespace="com.wugang.mapper.EbookMapper">
     <!-- 查询电子书列表 -->
     <select id="queryList" parameterType="Ebook" resultType="Ebook">
-        select *
-        from ebook
-        where 1=1
-        <if test="id != null and id != ''">
-            <bind name="pId" value="'%' + id + '%'"/>
-            and id like #{pid}
-        </if>
-        <if test="name != null and name != ''">
-            <bind name="pName" value="'%' + name + '%'"/>
-            and `name` like #{pName}
-        </if>
-        <if test="category1Id != null and category1Id != ''">
-            and category1_id = #{category1Id}
-        </if>
-        <if test="category2Id != null and category2Id != ''">
-            and category2_id like #{category2Id}
-        </if>
-        <if test="description != null and description != ''">
-            <bind name="pDescription" value="'%' + description + '%'"/>
-            and description like #{pDescription}
-        </if>
+        select
+        a.id, a.name,
+        c.name as category1_id, d.name as category2_id,
+        a.description, a.cover, a.doc_count,
+        a.view_count, a.vote_count
+        from ebook a
+        left join category c on a.category1_id = c.id
+        left join category d on a.category2_id = d.id
+        <where>
+            <if test="id != null and id != ''">
+                <bind name="pId" value="'%' + id + '%'"/>
+                and a.id like #{pid}
+            </if>
+            <if test="name != null and name != ''">
+                <bind name="pName" value="'%' + name + '%'"/>
+                and a.name like #{pName}
+            </if>
+            <if test="category1Id != null and category1Id != ''">
+                and a.category1_id = #{category1Id}
+            </if>
+            <if test="category2Id != null and category2Id != ''">
+                and a.category2_id like #{category2Id}
+            </if>
+            <if test="description != null and description != ''">
+                <bind name="pDescription" value="'%' + description + '%'"/>
+                and a.description like #{pDescription}
+            </if>
+        </where>
     </select>
 
     <!-- 更新电子书 -->

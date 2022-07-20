@@ -26,7 +26,7 @@
                 and a.category1_id = #{category1Id}
             </if>
             <if test="category2Id != null and category2Id != ''">
-                and a.category2_id like #{category2Id}
+                and a.category2_id = #{category2Id}
             </if>
             <if test="description != null and description != ''">
                 <bind name="pDescription" value="'%' + description + '%'"/>

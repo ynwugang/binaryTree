@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -48,6 +49,16 @@ public class EbookServiceImpl implements EbookService {
         if (ebookRequest.getPage() > 0 && ebookRequest.getSize() > 0){
             //使用PageHelper分页插件实现分页查询
             PageHelper.startPage(ebookRequest.getPage(), ebookRequest.getSize());
+        }
+
+        //校验分类参数
+        if (StringUtils.hasLength(ebookRequest.getCategoryId())){
+            String[] categoryId = ebookRequest.getCategoryId().split("-");
+            if (categoryId[0].equals("1")){
+                ebook.setCategory1Id(categoryId[1]);
+            } else if (categoryId[0].equals("2")){
+                ebook.setCategory2Id(categoryId[1]);
+            }
         }
 
         //执行查询

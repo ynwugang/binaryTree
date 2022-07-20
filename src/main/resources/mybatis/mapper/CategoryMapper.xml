@@ -39,17 +39,14 @@
 
     <!-- 查询所有的分类信息 -->
     <select id="queryAllList" resultMap="categoryMap">
-        select a.id,
-               a.parent,
-               a.name,
-               a.sort,
-               b.id as c_id,
-               b.parent as c_parent,
-               b.name as c_name,
-               b.sort as c_sort
+        select
+            a.id, a.parent, a.name, a.sort,
+            b.id as c_id, b.parent as c_parent, b.name as c_name, b.sort as c_sort
         from category a
-        join category b
+        left join category b
         on b.parent = a.id
+        where a.parent = '000'
+        order by sort asc
     </select>
 
     <!-- 更新category -->

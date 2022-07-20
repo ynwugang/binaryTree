@@ -53,7 +53,21 @@
             <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="父分类" :label-width="formLabelWidth">
-            <el-input v-model="form.parent" autocomplete="off"/>
+<!--            <el-input v-model="form.parent" autocomplete="off"/>-->
+            <el-select v-model="form.parent" class="m-2" placeholder="Select">
+              <el-option
+                  key="000"
+                  label="无"
+                  value="000"
+              />
+              <el-option
+                  v-for="item in categorys"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                  :disabled="item.id === form.id"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="排序" :label-width="formLabelWidth">
             <el-input v-model="form.sort" autocomplete="off"/>

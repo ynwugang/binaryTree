@@ -101,10 +101,12 @@
             <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="分类一" :label-width="formLabelWidth">
-            <el-input v-model="form.category1Id" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item label="分类二" :label-width="formLabelWidth">
-            <el-input v-model="form.category2Id" autocomplete="off"/>
+<!--            <el-input v-model="form.category1Id" autocomplete="off"/>-->
+            <el-cascader
+                v-model="categoryIds"
+                :props="{ label: 'name', value: 'id', children: 'children' }"
+                :options="options"
+                @change="handleChange" />
           </el-form-item>
           <el-form-item label="描述" :label-width="formLabelWidth">
             <el-input v-model="form.description" autocomplete="off"/>
@@ -228,6 +230,28 @@ export default ({
     //loading
     const loading = ref(true);
 
+    const categoryIds = ref();
+
+    const options = ref([]);
+
+    const handleChange = (categoryIds: any) => {
+      console.log(categoryIds)
+    };
+
+    //获取级联选择器的选项数据
+    const queryOptions = () => {
+      axios.get("/category/allList", {
+          }
+      ).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          options.value = data.content;
+        } else {
+          ElMessage.error(data.message);
+        }
+      });
+    }
+
     //保存确认对话框
     const openSave = () => {
       ElMessageBox.confirm(
@@ -292,13 +316,19 @@ export default ({
       dialogFormVisible.value = true;
       loading.value = false;
 
+      queryOptions();
+
       form.value = Tool.copy(row);
+
+      categoryIds.value = [form.value.category1Id, form.value.category2Id]
     }
 
     /**
      * 新增
      */
     const add = () => {
+      queryOptions();
+
       dialogFormVisible.value = true;
       form.value = {};
     }
@@ -370,7 +400,11 @@ export default ({
       openSave,
 
       param,
-      handleQuery
+      handleQuery,
+
+      categoryIds,
+      handleChange,
+      options
     };
   }
 

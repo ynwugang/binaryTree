@@ -63,7 +63,7 @@
             <el-button
                 size="small"
                 type="primary"
-                @click="handleEdit(scope.$index, scope.row)"
+                @click="docAdmin(scope.$index, scope.row)"
             >文档管理
             </el-button>
             <el-button
@@ -134,6 +134,7 @@ import {ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import { Tool } from "@/util/tool";
+import router from "@/router";
 
 export default ({
   name: 'EbookView',
@@ -319,6 +320,15 @@ export default ({
     }
 
     /**
+     * 文档管理
+     * @param index
+     * @param row
+     */
+    const docAdmin = (index: number, row: ebook) => {
+      router.push('/admin/doc')
+    }
+
+    /**
      * 编辑按钮
      * @param index
      * @param row
@@ -416,7 +426,9 @@ export default ({
 
       categoryIds,
       handleChange,
-      options
+      options,
+
+      docAdmin
     };
   }
 

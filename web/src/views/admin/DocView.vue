@@ -53,21 +53,28 @@
             <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="父文档" :label-width="formLabelWidth">
-<!--            <el-input v-model="form.parent" autocomplete="off"/>-->
-            <el-select v-model="form.parent" class="m-2" placeholder="Select">
-              <el-option
-                  key="000"
-                  label="无"
-                  value="000"
-              />
-              <el-option
-                  v-for="item in docs"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                  :disabled="item.id === form.id"
-              />
-            </el-select>
+            <el-tree-select
+                v-model="form.parent"
+                :data="treeSelectData"
+                check-strictly
+                :render-after-expand="false"
+                :props="{ label: 'name', value: 'id', children: 'children', disabled: 'disabled' }"
+            />
+
+            <!--            <el-select v-model="form.parent" class="m-2" placeholder="Select">-->
+            <!--              <el-option-->
+            <!--                  key="000"-->
+            <!--                  label="无"-->
+            <!--                  value="000"-->
+            <!--              />-->
+            <!--              <el-option-->
+            <!--                  v-for="item in docs"-->
+            <!--                  :key="item.id"-->
+            <!--                  :label="item.name"-->
+            <!--                  :value="item.id"-->
+            <!--                  :disabled="item.id === form.id"-->
+            <!--              />-->
+            <!--            </el-select>-->
           </el-form-item>
           <el-form-item label="排序" :label-width="formLabelWidth">
             <el-input v-model="form.sort" autocomplete="off"/>
@@ -88,7 +95,7 @@
 import {ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
-import { Tool } from "@/util/tool";
+import {Tool} from "@/util/tool";
 
 export default ({
   name: 'DocView',
@@ -99,8 +106,7 @@ export default ({
      * 数据查询
      **/
     const handleQuery = () => {
-      axios.get("/doc/allList", {
-          }
+      axios.get("/doc/allList", {}
       ).then((response) => {
         // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
         docs.value = [];
@@ -118,11 +124,14 @@ export default ({
 
     interface doc {
       id: string
+      ebookId: string
       parent: string
       name: string
       sort: number
+      viewCount: number
+      voteCount: number
     }
-    
+
 
     onMounted(() => {
       handleQuery();
@@ -136,6 +145,10 @@ export default ({
     //loading
     const loading = ref(true);
 
+    const treeSelectData = ref();
+    treeSelectData.value = [];
+
+
     //保存确认对话框
     const openSave = () => {
       ElMessageBox.confirm(
@@ -148,7 +161,7 @@ export default ({
           }
       ).then(() => {
         //执行保存操作
-        saveDoc(form.value);
+        saveDoc();
         //给出信息提示
         ElMessage({
           type: 'success',
@@ -166,9 +179,8 @@ export default ({
     /**
      * 保存修改
      * @param index
-     * @param row
      */
-    const saveDoc = (row: doc) => {
+    const saveDoc = () => {
       loading.value = true;
       axios.post("/doc/saveDoc", form.value).then((response) => {
         //获取返回值
@@ -188,6 +200,39 @@ export default ({
     }
 
     /**
+     * 将某个节点及其子孙节点全部设置disabled为true
+     * @param treeData
+     * @param id
+     */
+    const setDisable = (treeData: any, id: any) => {
+      //遍历数组
+      for (let i = 0; i < treeData.length; i++) {
+        const node = treeData[i];
+        //找到目标节点
+        if (node.id === id) {
+          console.log("目标node：", node);
+
+          //将目标节点设置为disabled
+          node.disabled = true;
+
+          //遍历子节点，将所有子节点都加上disabled
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              setDisable(children, children[j].id)
+            }
+          }
+        } else {
+          //如果当前节点不是目标节点，则到其子节点中寻找
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            setDisable(children, id)
+          }
+        }
+      }
+    }
+
+    /**
      * 编辑按钮
      * @param index
      * @param row
@@ -197,6 +242,15 @@ export default ({
       loading.value = false;
 
       form.value = Tool.copy(row);
+
+      // 为选择树赋值
+      treeSelectData.value = Tool.copy(docs.value);
+      // 设置不能选择的节点
+      setDisable(treeSelectData.value, row.id);
+
+      console.log("treeSelectData：", treeSelectData)
+      // 为选择树添加一个“无”
+      treeSelectData.value.unshift({id: "0", name: "无"});
     }
 
     /**
@@ -205,6 +259,11 @@ export default ({
     const add = () => {
       dialogFormVisible.value = true;
       form.value = {};
+
+      // 为选择树赋值
+      treeSelectData.value = Tool.copy(docs.value);
+      // 为选择树添加一个“无”
+      treeSelectData.value.unshift({id: "0", name: "无"});
     }
 
     /**
@@ -268,6 +327,8 @@ export default ({
       openSave,
 
       handleQuery,
+
+      treeSelectData
     };
   }
 

@@ -35,8 +35,8 @@ public class DocController {
      * @return
      */
     @GetMapping("/allList")
-    public CommonResponse allList() {
-        List<Doc> categories = docService.queryAllList();
+    public CommonResponse allList(DocQueryRequest docQueryRequest) {
+        List<Doc> categories = docService.queryAllList(docQueryRequest);
         return new CommonResponse(categories);
     }
 

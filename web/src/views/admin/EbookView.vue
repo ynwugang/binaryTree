@@ -325,7 +325,7 @@ export default ({
      * @param row
      */
     const docAdmin = (index: number, row: ebook) => {
-      router.push('/admin/doc')
+      router.push(`/admin/doc/${row.id}`)
     }
 
     /**

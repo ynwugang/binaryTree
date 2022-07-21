@@ -96,17 +96,27 @@ import {ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {Tool} from "@/util/tool";
+import {useRoute} from "vue-router";
 
 export default ({
   name: 'DocView',
   setup() {
     const docs = ref();
 
+    const route = useRoute();
+    //电子书ID
+    const ebookId = route.params.ebookId;
+
     /**
      * 数据查询
      **/
     const handleQuery = () => {
-      axios.get("/doc/allList", {}
+      axios.get("/doc/allList",
+          {
+            params: {
+              ebookId: ebookId
+            }
+          }
       ).then((response) => {
         // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
         docs.value = [];
@@ -258,7 +268,9 @@ export default ({
      */
     const add = () => {
       dialogFormVisible.value = true;
-      form.value = {};
+      form.value = {
+        ebookId: ebookId
+      };
 
       // 为选择树赋值
       treeSelectData.value = Tool.copy(docs.value);

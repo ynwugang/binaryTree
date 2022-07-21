@@ -18,4 +18,9 @@ public class DocQueryRequest {
      * 父节点id
      */
     private String parent;
+
+    /**
+     * 电子书ID
+     */
+    private String ebookId;
 }

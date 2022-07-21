@@ -13,7 +13,7 @@ public interface DocService {
     PageResponse<Doc> queryList(DocQueryRequest docRequest);
 
 
-    List<Doc> queryAllList();
+    List<Doc> queryAllList(DocQueryRequest docQueryRequest);
 
     void saveDoc(DocSaveRequest docRequest);
 

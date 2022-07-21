@@ -42,5 +42,5 @@ public interface DocMapper {
      * 获取所有Doc
      * @return
      */
-    List<Doc> queryAllList();
+    List<Doc> queryAllList(Doc doc);
 }

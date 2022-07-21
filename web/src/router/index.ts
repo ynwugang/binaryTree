@@ -31,7 +31,7 @@ const routes: Array<RouteRecordRaw> = [
     component: CategorykView
   },
   {
-    path: '/admin/doc',
+    path: '/admin/doc/:ebookId',
     name: 'doc',
     component: DocView
   }

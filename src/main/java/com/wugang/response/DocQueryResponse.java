@@ -43,4 +43,9 @@ public class DocQueryResponse {
      * 点赞数
      */
     private int voteCount;
+
+    /**
+     * 文档内容
+     */
+    private String content;
 }

@@ -1,6 +1,8 @@
 package com.wugang.service.impl;
 
+import com.wugang.mapper.ContentMapper;
 import com.wugang.mapper.DocMapper;
+import com.wugang.pojo.Content;
 import com.wugang.pojo.Doc;
 import com.wugang.request.DocQueryRequest;
 import com.wugang.request.DocSaveRequest;
@@ -27,37 +29,10 @@ public class DocServiceImpl implements DocService {
     private DocMapper docMapper;
 
     @Resource
+    private ContentMapper contentMapper;
+
+    @Resource
     private SnowFlake snowFlake;
-
-    /**
-     * 查询电子书列表
-     * @param docRequest
-     * @return
-     */
-    @Override
-    @Deprecated
-    public PageResponse<Doc> queryList(DocQueryRequest docRequest) {
-//        //将docRequest的信息存入到doc中
-//        Doc doc = CopyUtil.copy(docRequest, Doc.class);
-//        //使用PageHelper分页插件实现分页查询
-//        PageHelper.startPage(docRequest.getPage(), docRequest.getSize());
-//        //执行查询
-//        List<Doc> docList = docMapper.queryList(doc);
-//
-//        //获取查询情况
-//        PageInfo<Doc> pageInfo = new PageInfo<>(docList);
-//        LOGGER.info("总条数：{}", pageInfo.getTotal());
-//        LOGGER.info("总页数：{}", pageInfo.getPages());
-//
-//        //存储查询到的数据以及总条数
-//        PageResponse<Doc> pageResponse = new PageResponse<>();
-//        pageResponse.setTotal(pageInfo.getTotal());
-//        pageResponse.setList(docList);
-//
-//        return pageResponse;
-
-        return null;
-    }
 
     /**
      * 查询所有分类信息
@@ -78,14 +53,23 @@ public class DocServiceImpl implements DocService {
     @Override
     public void saveDoc(DocSaveRequest docRequest) {
         Doc doc = CopyUtil.copy(docRequest, Doc.class);
+        Content content = CopyUtil.copy(docRequest, Content.class);
 
         if (ObjectUtils.isEmpty(docRequest.getId())){
             //新增
             doc.setId(String.valueOf(snowFlake.nextId()));
             docMapper.insertDoc(doc);
+
+            content.setId(doc.getId());
+            contentMapper.insertContent(content);
         } else {
             //更新
             docMapper.updateDoc(doc);
+            int count = contentMapper.updateContent(content);
+            if (count == 0){
+                content.setId(doc.getId());
+                contentMapper.insertContent(content);
+            }
         }
     }
 
@@ -99,5 +83,17 @@ public class DocServiceImpl implements DocService {
 
 
         docMapper.deleteDocById(idList);
+    }
+
+    /**
+     * 查询文档内容
+     * @param id
+     * @return
+     */
+    @Override
+    public String queryContent(String id) {
+        Content content = contentMapper.queryContentById(id);
+
+        return ObjectUtils.isEmpty(content)? "" : content.getContent();
     }
 }

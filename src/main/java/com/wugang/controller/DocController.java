@@ -1,5 +1,6 @@
 package com.wugang.controller;
 
+import com.wugang.pojo.Content;
 import com.wugang.pojo.Doc;
 import com.wugang.request.DocQueryRequest;
 import com.wugang.request.DocSaveRequest;
@@ -20,17 +21,6 @@ public class DocController {
     private DocServiceImpl docService;
 
     /**
-     * 分页查询doc列表
-     * @param docRequest
-     * @return
-     */
-    @GetMapping("/list")
-    public CommonResponse<PageResponse<Doc>> list(DocQueryRequest docRequest) {
-        PageResponse<Doc> docs = docService.queryList(docRequest);
-        return new CommonResponse(docs);
-    }
-
-    /**
      * 所有doc信息
      * @return
      */
@@ -38,6 +28,16 @@ public class DocController {
     public CommonResponse allList(DocQueryRequest docQueryRequest) {
         List<Doc> categories = docService.queryAllList(docQueryRequest);
         return new CommonResponse(categories);
+    }
+
+    /**
+     * 获取文档内容
+     * @return
+     */
+    @GetMapping("/content/{id}")
+    public CommonResponse content(@PathVariable String id) {
+        String content = docService.queryContent(id);
+        return new CommonResponse(content);
     }
 
     /**

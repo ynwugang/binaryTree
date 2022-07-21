@@ -10,13 +10,6 @@ import java.util.List;
 @Repository
 public interface ContentMapper {
     /**
-     * 查询content列表
-     * @param content
-     * @return
-     */
-    List<Content> queryList(Content content);
-
-    /**
      * 更新content
      * @param content
      * @return
@@ -38,8 +31,9 @@ public interface ContentMapper {
     int deleteContentById(List<String> idList);
 
     /**
-     * 获取所有Content
+     * 根据ID查询Content
+     * @param id
      * @return
      */
-    List<Content> queryAllList(Content content);
+    Content queryContentById(String id);
 }

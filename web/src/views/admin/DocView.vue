@@ -143,6 +143,7 @@ export default ({
       sort: number
       viewCount: number
       voteCount: number
+      content: string
     }
 
 
@@ -161,14 +162,30 @@ export default ({
     const editorRef = shallowRef()
 
     // 内容 HTML
-    const valueHtml = ref('<p>hello</p>')
+    const valueHtml = ref()
 
-    // 模拟 ajax 异步获取内容
-    onMounted(() => {
-      setTimeout(() => {
-        valueHtml.value = '<p>模拟 Ajax 异步设置内容</p>'
-      }, 1500)
-    })
+    // // 模拟 ajax 异步获取内容
+    // onMounted(() => {
+    //   setTimeout(() => {
+    //     valueHtml.value = '<p>模拟 Ajax 异步设置内容</p>'
+    //   }, 1500)
+    // })
+
+    /**
+     * 查询文档内容
+     * @param id
+     */
+    const handleQueryContent = (id: string) => {
+      axios.get(`/doc/content/${id}`)
+          .then((response) => {
+            const data = response.data;
+            if (data.success){
+              valueHtml.value = data.content;
+            } else {
+              ElMessage.error(data.message);
+            }
+          })
+    }
 
     const toolbarConfig = {}
     const editorConfig = {placeholder: '请输入内容...'}
@@ -196,6 +213,11 @@ export default ({
             type: 'warning',
           }
       ).then(() => {
+
+        form.value.content = editorRef.value.getHtml();
+
+        console.log("form: ", form);
+
         //执行保存操作
         saveDoc();
         //给出信息提示
@@ -264,6 +286,11 @@ export default ({
      * @param row
      */
     const handleEdit = (index: number, row: doc) => {
+      //清空文档内容
+      valueHtml.value = '<p><br></p>';
+      //查询文档内容
+      handleQueryContent(row.id);
+
       form.value = Tool.copy(row);
       // 为选择树赋值
       treeSelectData.value = Tool.copy(docs.value);
@@ -277,6 +304,9 @@ export default ({
      * 新增
      */
     const add = () => {
+      //清空文档内容
+      valueHtml.value = '<p><br></p>';
+      //电子书id赋值
       form.value = {
         ebookId: ebookId
       };

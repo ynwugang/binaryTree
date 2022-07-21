@@ -9,13 +9,11 @@ import com.wugang.response.PageResponse;
 import java.util.List;
 
 public interface DocService {
-
-    PageResponse<Doc> queryList(DocQueryRequest docRequest);
-
-
     List<Doc> queryAllList(DocQueryRequest docQueryRequest);
 
     void saveDoc(DocSaveRequest docRequest);
 
     void deleteDoc(String docId);
+
+    String queryContent(String id);
 }

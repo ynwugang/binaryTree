@@ -28,7 +28,7 @@
     <!-- 查询所有的分类信息 -->
     <select id="queryAllList" parameterType="Doc" resultType="Doc">
         select
-            id, ebook_id, parent, `name`, sort, view_count, vote_count
+        id, ebook_id, parent, `name`, sort, view_count, vote_count
         from doc
         <where>
             <if test="ebookId != null and ebookId != ''">
@@ -62,10 +62,14 @@
     </insert>
 
     <!-- 根据ID删除Doc -->
-    <delete id="deleteDocById" parameterType="String">
+    <delete id="deleteDocById" parameterType="list">
         delete
         from doc
-        where id = #{id}
+        where id in
+        <foreach item="id" index="index" collection="idList"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
 
 </mapper>

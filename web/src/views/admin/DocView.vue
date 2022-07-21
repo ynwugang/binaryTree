@@ -240,7 +240,7 @@ export default ({
           }
         }
       }
-    }
+    };
 
     /**
      * 编辑按钮
@@ -283,7 +283,7 @@ export default ({
      */
     const openDelete = (index: number, row: doc) => {
       ElMessageBox.confirm(
-          '删除后无法恢复，确定要删除吗?',
+          '删除会将下面的子文档一同删除，并且删除后无法恢复，确定要删除吗?',
           '警告',
           {
             confirmButtonText: '确认',
@@ -291,13 +291,20 @@ export default ({
             type: 'warning',
           }
       ).then(() => {
-        //执行保存操作
-        handleDelete(index, row);
-        //给出信息提示
-        ElMessage({
-          type: 'success',
-          message: '删除成功',
-        })
+        //存储删除的id
+        const ids: string[] = [];
+        //存储删除的文档名称
+        const names: string[] = [];
+
+        //获取当前节点及其子孙节点的id
+        getDeleteIds(row, row.id, ids, names);
+
+        console.log("ids: ", ids);
+        console.log("names: ", names);
+
+
+        //再次提示
+        openDelete2(ids, names);
       }).catch(() => {
 
         // ElMessage({
@@ -308,13 +315,69 @@ export default ({
     }
 
     /**
+     * 获取指定节点及其子节点的ID
+     * @param treeData
+     * @param id
+     */
+    const getDeleteIds = (treeData: any, id: any, ids: string[], names: string[]) => {
+      //将当前节点的id存入数组
+      ids.push(id);
+      //存储文档名称
+      names.push(treeData.name)
+      //获取当前节点的子节点
+      const children = treeData.children;
+      //若子节点存在，则遍历子节点，递归调用该方法
+      if (Tool.isNotEmpty(children)) {
+        //遍历子节点对象
+        for (let j = 0; j < children.length; j++) {
+          //递归调用，将每一个子节点，作为参数传递
+          getDeleteIds(children[j], children[j].id, ids, names)
+        }
+      }
+    }
+
+    /**
+     * 删除功能的二次提示
+     * @param ids
+     * @param names
+     */
+    const openDelete2 = (ids: string[], names: string[]) => {
+      //将要删除的文档名称处理
+      let nameStr = "";
+      names.forEach((item) => {
+        nameStr+=item + "，";
+      })
+      nameStr = nameStr.substring(0, nameStr.length - 1);
+
+      //消息框
+      ElMessageBox.confirm(
+          '即将删除：[' + nameStr + ']，删除后不可恢复，确认删除吗?',
+          '再次警告',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '再想想',
+            type: 'warning',
+          }
+      ).then(() => {
+        //执行删除操作
+        handleDelete(ids);
+        //给出信息提示
+        ElMessage({
+          type: 'success',
+          message: '删除成功',
+        })
+      }).catch(() => {
+        console.log("二次提示点击取消")
+      })
+    }
+
+    /**
      * 删除按钮
      * @param index
      * @param row
      */
-    const handleDelete = (index: number, row: doc) => {
-      console.log(index, row)
-      axios.delete("/doc/deleteDoc/" + row.id)
+    const handleDelete = (ids: string[]) => {
+      axios.delete("/doc/deleteDoc/" + ids)
           .then((response) => {
             const data = response.data;
             if (data.success) {

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -90,10 +91,13 @@ public class DocServiceImpl implements DocService {
 
     /**
      * 删除电子书
-     * @param docId
+     * @param docIds
      */
     @Override
-    public void deleteDoc(String docId) {
-        docMapper.deleteDocById(docId);
+    public void deleteDoc(String docIds) {
+        List<String> idList = Arrays.asList(docIds.split(","));
+
+
+        docMapper.deleteDocById(idList);
     }
 }

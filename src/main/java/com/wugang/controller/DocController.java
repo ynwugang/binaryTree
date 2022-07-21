@@ -53,12 +53,12 @@ public class DocController {
 
     /**
      * 删除doc
-     * @param docId
+     * @param docIds
      * @return
      */
-    @DeleteMapping("/deleteDoc/{id}")
-    public CommonResponse deleteDoc(@PathVariable("id") String docId) {
-        docService.deleteDoc(docId);
+    @DeleteMapping("/deleteDoc/{ids}")
+    public CommonResponse deleteDoc(@PathVariable("ids") String docIds) {
+        docService.deleteDoc(docIds);
         return CommonResponse.success();
     }
 }

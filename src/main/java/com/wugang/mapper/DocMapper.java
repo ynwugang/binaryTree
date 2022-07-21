@@ -33,10 +33,10 @@ public interface DocMapper {
 
     /**
      * 根据ID删除Doc
-     * @param id
+     * @param idList
      * @return
      */
-    int deleteDocById(String id);
+    int deleteDocById(List<String> idList);
 
     /**
      * 获取所有Doc

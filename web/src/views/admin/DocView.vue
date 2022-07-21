@@ -60,24 +60,26 @@
                 :render-after-expand="false"
                 :props="{ label: 'name', value: 'id', children: 'children', disabled: 'disabled' }"
             />
-
-            <!--            <el-select v-model="form.parent" class="m-2" placeholder="Select">-->
-            <!--              <el-option-->
-            <!--                  key="000"-->
-            <!--                  label="无"-->
-            <!--                  value="000"-->
-            <!--              />-->
-            <!--              <el-option-->
-            <!--                  v-for="item in docs"-->
-            <!--                  :key="item.id"-->
-            <!--                  :label="item.name"-->
-            <!--                  :value="item.id"-->
-            <!--                  :disabled="item.id === form.id"-->
-            <!--              />-->
-            <!--            </el-select>-->
           </el-form-item>
           <el-form-item label="排序" :label-width="formLabelWidth">
             <el-input v-model="form.sort" autocomplete="off"/>
+          </el-form-item>
+          <el-form-item label="内容" :label-width="formLabelWidth">
+            <div id="content">
+              <Toolbar
+                  style="border-bottom: 1px solid #ccc"
+                  :editor="editorRef"
+                  :defaultConfig="toolbarConfig"
+                  :mode="mode"
+              />
+              <Editor
+                  style="height: 500px; overflow-y: hidden;"
+                  v-model="valueHtml"
+                  :defaultConfig="editorConfig"
+                  :mode="mode"
+                  @onCreated="handleCreated"
+              />
+            </div>
           </el-form-item>
         </el-form>
         <template #footer>
@@ -92,14 +94,22 @@
 </template>
 
 <script lang="ts">
-import {ref, onMounted} from "vue";
+import '@wangeditor/editor/dist/css/style.css' // 引入 css
+
+import {ref, onMounted, shallowRef, onBeforeUnmount} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {Tool} from "@/util/tool";
 import {useRoute} from "vue-router";
 
+import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
+
 export default ({
   name: 'DocView',
+  components: {
+    Editor,
+    Toolbar
+  },
   setup() {
     const docs = ref();
 
@@ -157,6 +167,33 @@ export default ({
 
     const treeSelectData = ref();
     treeSelectData.value = [];
+
+    // 编辑器实例，必须用 shallowRef
+    const editorRef = shallowRef()
+
+    // 内容 HTML
+    const valueHtml = ref('<p>hello</p>')
+
+    // 模拟 ajax 异步获取内容
+    onMounted(() => {
+      setTimeout(() => {
+        valueHtml.value = '<p>模拟 Ajax 异步设置内容</p>'
+      }, 1500)
+    })
+
+    const toolbarConfig = {}
+    const editorConfig = {placeholder: '请输入内容...'}
+
+    // 组件销毁时，也及时销毁编辑器
+    onBeforeUnmount(() => {
+      const editor = editorRef.value
+      if (editor == null) return
+      editor.destroy()
+    })
+
+    const handleCreated = (editor: any) => {
+      editorRef.value = editor // 记录 editor 实例，重要！
+    }
 
 
     //保存确认对话框
@@ -345,7 +382,7 @@ export default ({
       //将要删除的文档名称处理
       let nameStr = "";
       names.forEach((item) => {
-        nameStr+=item + "，";
+        nameStr += item + "，";
       })
       nameStr = nameStr.substring(0, nameStr.length - 1);
 
@@ -403,7 +440,14 @@ export default ({
 
       handleQuery,
 
-      treeSelectData
+      treeSelectData,
+
+      editorRef,
+      valueHtml,
+      mode: 'default', // 或 'simple'
+      toolbarConfig,
+      editorConfig,
+      handleCreated
     };
   }
 

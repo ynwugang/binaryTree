@@ -1,94 +1,87 @@
 <template>
   <el-container style="padding: 5px 20px">
     <el-main style="padding: 0">
+      <el-row>
+        <el-col :span="8">
+          <!-- 搜索框和查询、新增按钮 -->
+          <p>
+            <el-button type="success" @click="add">新增</el-button>
+          </p>
 
-      <!-- 搜索框和查询、新增按钮 -->
-      <p>
-        <el-button type="success" @click="add">新增</el-button>
-      </p>
+          <!-- 列表数据 -->
+          <el-table :data="docs"
+                    style="width: 100%"
+                    row-key="id"
+                    default-expand-all
+          >
+            <el-table-column label="名称">
+              <template #default="scope">
+                <span style="margin-left: 10px">{{ scope.row.name }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template #default="scope">
+                <el-button
+                    size="small"
+                    type="primary"
+                    @click="handleEdit(scope.$index, scope.row)"
+                >编辑
+                </el-button>
+                <el-button
+                    size="small"
+                    type="danger"
+                    @click="openDelete(scope.$index, scope.row)"
+                >删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
 
-      <!-- 列表数据 -->
-      <el-table :data="docs" style="width: 100%"
-                row-key="id"
-                border
-      >
-        <el-table-column label="名称">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="父文档">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.parent }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="排序">
-          <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.sort }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template #default="scope">
-            <el-button
-                size="small"
-                type="primary"
-                @click="handleEdit(scope.$index, scope.row)"
-            >编辑
-            </el-button>
-            <el-button
-                size="small"
-                type="danger"
-                @click="openDelete(scope.$index, scope.row)"
-            >删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+        <el-col :span="16">
 
+          <p>
+            <el-button type="primary" @click="openSave">保存</el-button>
+          </p>
 
-      <!-- 弹出层-编辑框 -->
-      <el-dialog v-loading="loading" v-model="dialogFormVisible" title="文档编辑">
-        <el-form :model="form">
-          <el-form-item label="名称" :label-width="formLabelWidth">
-            <el-input v-model="form.name" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item label="父文档" :label-width="formLabelWidth">
-            <el-tree-select
-                v-model="form.parent"
-                :data="treeSelectData"
-                check-strictly
-                :render-after-expand="false"
-                :props="{ label: 'name', value: 'id', children: 'children', disabled: 'disabled' }"
-            />
-          </el-form-item>
-          <el-form-item label="排序" :label-width="formLabelWidth">
-            <el-input v-model="form.sort" autocomplete="off"/>
-          </el-form-item>
-          <el-form-item label="内容" :label-width="formLabelWidth">
-            <div id="content">
-              <Toolbar
-                  style="border-bottom: 1px solid #ccc"
-                  :editor="editorRef"
-                  :defaultConfig="toolbarConfig"
-                  :mode="mode"
+          <el-form :model="form">
+            <el-form-item>
+              <el-input placeholder="请输入文档名称" v-model="form.name" autocomplete="off"/>
+            </el-form-item>
+            <el-form-item>
+              <el-tree-select
+                  placeholder="请选择父文档"
+                  v-model="form.parent"
+                  :data="treeSelectData"
+                  check-strictly
+                  :render-after-expand="false"
+                  :props="{ label: 'name', value: 'id', children: 'children', disabled: 'disabled' }"
               />
-              <Editor
-                  style="height: 500px; overflow-y: hidden;"
-                  v-model="valueHtml"
-                  :defaultConfig="editorConfig"
-                  :mode="mode"
-                  @onCreated="handleCreated"
-              />
-            </div>
-          </el-form-item>
-        </el-form>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="dialogFormVisible = false">取消</el-button>
-            <el-button type="primary" @click="openSave">确认</el-button>
-          </span>
-        </template>
-      </el-dialog>
+            </el-form-item>
+            <el-form-item>
+              <el-input placeholder="请输入序号" v-model="form.sort" autocomplete="off"/>
+            </el-form-item>
+            <el-form-item>
+              <div id="content">
+                <Toolbar
+                    style="border-bottom: 1px solid #ccc"
+                    :editor="editorRef"
+                    :defaultConfig="toolbarConfig"
+                    :mode="mode"
+                />
+                <Editor
+                    style="height: 500px; overflow-y: hidden;"
+                    v-model="valueHtml"
+                    :defaultConfig="editorConfig"
+                    :mode="mode"
+                    @onCreated="handleCreated"
+                />
+              </div>
+            </el-form-item>
+          </el-form>
+
+        </el-col>
+      </el-row>
     </el-main>
   </el-container>
 </template>
@@ -157,13 +150,9 @@ export default ({
       handleQuery();
     });
 
-    //编辑弹出表单相关
-    const dialogFormVisible = ref(false)
-    const formLabelWidth = '140px'
     //表单数据
     const form = ref();
-    //loading
-    const loading = ref(true);
+    form.value = {}
 
     const treeSelectData = ref();
     treeSelectData.value = [];
@@ -228,20 +217,12 @@ export default ({
      * @param index
      */
     const saveDoc = () => {
-      loading.value = true;
       axios.post("/doc/saveDoc", form.value).then((response) => {
         //获取返回值
         const data = response.data;
         if (data.success) {
-          //停止加载动画
-          loading.value = false;
-          //关闭弹出的表单
-          dialogFormVisible.value = false;
-
           //重新加载列表数据
           handleQuery();
-
-          console.log(docs.value)
         }
       });
     }
@@ -257,8 +238,6 @@ export default ({
         const node = treeData[i];
         //找到目标节点
         if (node.id === id) {
-          console.log("目标node：", node);
-
           //将目标节点设置为disabled
           node.disabled = true;
 
@@ -285,17 +264,11 @@ export default ({
      * @param row
      */
     const handleEdit = (index: number, row: doc) => {
-      dialogFormVisible.value = true;
-      loading.value = false;
-
       form.value = Tool.copy(row);
-
       // 为选择树赋值
       treeSelectData.value = Tool.copy(docs.value);
       // 设置不能选择的节点
       setDisable(treeSelectData.value, row.id);
-
-      console.log("treeSelectData：", treeSelectData)
       // 为选择树添加一个“无”
       treeSelectData.value.unshift({id: "0", name: "无"});
     }
@@ -304,11 +277,9 @@ export default ({
      * 新增
      */
     const add = () => {
-      dialogFormVisible.value = true;
       form.value = {
         ebookId: ebookId
       };
-
       // 为选择树赋值
       treeSelectData.value = Tool.copy(docs.value);
       // 为选择树添加一个“无”
@@ -432,10 +403,7 @@ export default ({
 
       openDelete,
 
-      dialogFormVisible,
-      formLabelWidth,
       form,
-      loading,
       openSave,
 
       handleQuery,

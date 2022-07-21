@@ -78,7 +78,7 @@ insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) val
 -- 文档内容
 drop table if exists `content`;
 create table `content` (
-  `id` bigint not null comment '文档id',
+  `id` varchar(32) not null comment '文档id',
   `content` mediumtext not null comment '内容',
   primary key (`id`)
 ) engine=innodb default charset=utf8mb4 comment='文档内容';

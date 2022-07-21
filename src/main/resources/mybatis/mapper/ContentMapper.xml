@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wugang.mapper.ContentMapper">
+
+    <!-- 查询content列表 -->
+    <select id="queryList" parameterType="Content" resultType="Content">
+        select *
+        from content
+        where 1=1
+        <if test="id != null and id != ''">
+            and id = #{id}
+        </if>
+        <if test="parent != null and parent != ''">
+            and parent = #{parent}
+        </if>
+        <if test="name != null and name != ''">
+            <bind name="pName" value="'%' + name + '%'"/>
+            and `name` like #{pName}
+        </if>
+        <if test="sort != null and sort != ''">
+            and sort = #{sort}
+        </if>
+        order by sort asc
+    </select>
+
+    <!-- 查询所有的分类信息 -->
+    <select id="queryAllList" parameterType="Content" resultType="Content">
+        select
+        id, ebook_id, parent, `name`, sort, view_count, vote_count
+        from content
+        <where>
+            <if test="ebookId != null and ebookId != ''">
+                and ebook_id = #{ebookId}
+            </if>
+        </where>
+        order by sort asc
+    </select>
+
+    <!-- 更新content -->
+    <update id="updateContent" parameterType="Content">
+        update content
+        <set>
+            <if test="parent != null and parent != ''">
+                parent = #{parent},
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort = #{sort},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 新增Content -->
+    <insert id="insertContent" parameterType="Content">
+        insert into content (id, parent, `name`, sort)
+        values (#{id}, #{parent}, #{name}, #{sort})
+    </insert>
+
+    <!-- 根据ID删除Content -->
+    <delete id="deleteContentById" parameterType="list">
+        delete
+        from content
+        where id in
+        <foreach item="id" index="index" collection="idList"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

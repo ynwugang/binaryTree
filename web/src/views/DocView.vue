@@ -1,6 +1,7 @@
 <template>
   <el-container style="padding: 5px 20px">
-    <el-main style="padding: 0">
+    <el-main style="padding: 0; height: 800px">
+      <h3 v-if="docs.length === 0" style="text-align: center">对不起，找不到相关文档！</h3>
       <el-row>
         <el-col :span="6">
           <el-tree
@@ -10,6 +11,7 @@
               @node-click="handleNodeClick"
               default-expand-all
               :expand-on-click-node="false"
+              :default-checked-keys="defaultCheckedKey"
           />
         </el-col>
         <el-col :span="18">
@@ -107,30 +109,16 @@ export default ({
 
     //doc数据
     const docs = ref();
+    docs.value = [];
     //路由route
     const route = useRoute();
     //电子书ID
     const ebookId = route.params.ebookId;
     //内联HTML内容
     const html = ref();
-
-    /**
-     * 数据查询
-     **/
-    const handleQuery = () => {
-      axios.get(`/doc/allList/${ebookId}`)
-          .then((response) => {
-            // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
-            docs.value = [];
-            const data = response.data;
-            if (data.success) {
-              docs.value = Tool.array2Tree(data.content, '0')
-              console.log("docs.value", docs.value);
-            } else {
-              ElMessage.error(data.message);
-            }
-          });
-    };
+    //默认选择的节点
+    const defaultCheckedKey = ref();
+    defaultCheckedKey.value = [];
 
     /**
      * 内容查询
@@ -146,6 +134,29 @@ export default ({
               ElMessage.error(data.message);
             }
           })
+    };
+
+    /**
+     * 数据查询
+     **/
+    const handleQuery = () => {
+      axios.get(`/doc/allList/${ebookId}`)
+          .then((response) => {
+            // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
+            docs.value = [];
+            const data = response.data;
+            if (data.success) {
+              docs.value = Tool.array2Tree(data.content, '0')
+
+              //设置第一个节点为选中状态，查询其内容
+              if (Tool.isNotEmpty(docs.value)){
+                defaultCheckedKey.value = [docs.value[0].id];
+                handleQueryContent(docs.value[0].id)
+              }
+            } else {
+              ElMessage.error(data.message);
+            }
+          });
     };
 
     /**
@@ -165,7 +176,8 @@ export default ({
     return {
       docs,
       html,
-      handleNodeClick
+      handleNodeClick,
+      defaultCheckedKey
     };
   }
 

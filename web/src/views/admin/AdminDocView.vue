@@ -1,8 +1,8 @@
 <template>
   <el-container style="padding: 5px 20px">
-    <el-main style="padding: 0">
+    <el-main style="padding: 0; height: 800px">
       <el-row>
-        <el-col :span="10">
+        <el-col :span="8">
           <!-- 搜索框和查询、新增按钮 -->
           <p>
             <el-button type="success" @click="add">新增</el-button>
@@ -38,7 +38,7 @@
           </el-table>
         </el-col>
 
-        <el-col :span="14">
+        <el-col :span="16">
 
           <p>
             <el-button type="primary" @click="openSave">保存</el-button>
@@ -63,7 +63,10 @@
               <el-input placeholder="请输入序号" v-model="form.sort" autocomplete="off"/>
             </el-form-item>
             <el-form-item>
-              <div id="content">
+              <el-button type="primary" plain @click="handlePreviewContent">内容预览</el-button>
+            </el-form-item>
+            <el-form-item>
+              <div id="content" style="width: 100%">
                 <Toolbar
                     style="border-bottom: 1px solid #ccc"
                     :editor="editorRef"
@@ -71,7 +74,8 @@
                     :mode="mode"
                 />
                 <Editor
-                    style="height: 500px; overflow-y: hidden;"
+                    style="height: 400px;
+                    overflow-y: hidden;"
                     v-model="valueHtml"
                     :defaultConfig="editorConfig"
                     :mode="mode"
@@ -83,6 +87,11 @@
 
         </el-col>
       </el-row>
+
+      <!-- 抽屉组件，用于文档预览 -->
+      <el-drawer size="80%" v-model="drawer">
+        <div class="editor-content-view" :innerHTML="previewHtml"></div>
+      </el-drawer>
     </el-main>
   </el-container>
 </template>
@@ -293,8 +302,14 @@ export default ({
       console.log("form", form.value)
       // 为选择树赋值
       treeSelectData.value = Tool.copy(docs.value);
-      // 为选择树添加一个“无”
-      treeSelectData.value.unshift({id: "0", name: "无"});
+
+      if (Tool.isEmpty(treeSelectData.value)) {
+        treeSelectData.value = [{id: "0", name: "无"}]
+        // treeSelectData.value.push({id: "0", name: "无"});
+      } else {
+        // 为选择树添加一个“无”
+        treeSelectData.value.unshift({id: "0", name: "无"});
+      }
     }
 
     /**
@@ -314,14 +329,8 @@ export default ({
         const ids: string[] = [];
         //存储删除的文档名称
         const names: string[] = [];
-
         //获取当前节点及其子孙节点的id
         getDeleteIds(row, row.id, ids, names);
-
-        console.log("ids: ", ids);
-        console.log("names: ", names);
-
-
         //再次提示
         openDelete2(ids, names);
       }).catch(() => {
@@ -406,6 +415,19 @@ export default ({
           });
     };
 
+    // ---------富文本预览--------
+    //抽屉显示
+    const drawer = ref(false);
+    //预览内容
+    const previewHtml = ref();
+
+    //内容预览按钮点击事件
+    const handlePreviewContent = () => {
+      const html = editorRef.value.getHtml();
+      previewHtml.value = html;
+      drawer.value = true;
+    }
+
     onMounted(() => {
       //查询数据
       handleQuery()
@@ -431,7 +453,11 @@ export default ({
       mode: 'default', // 或 'simple'
       toolbarConfig,
       editorConfig,
-      handleCreated
+      handleCreated,
+
+      handlePreviewContent,
+      drawer,
+      previewHtml
     };
   }
 

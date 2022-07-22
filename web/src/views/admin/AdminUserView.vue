@@ -69,7 +69,7 @@
       <el-dialog v-loading="loading" v-model="dialogFormVisible" title="电子书编辑">
         <el-form :model="form">
           <el-form-item label="登录名" :label-width="formLabelWidth">
-            <el-input v-model="form.loginName" autocomplete="off"/>
+            <el-input v-model="form.loginName" :disabled="!!form.id" autocomplete="off"/>
           </el-form-item>
           <el-form-item label="昵称" :label-width="formLabelWidth">
             <el-input v-model="form.name" autocomplete="off"/>
@@ -94,7 +94,6 @@ import {ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {Tool} from "@/util/tool";
-import router from "@/router";
 
 export default ({
   name: 'AdminUserView',
@@ -267,6 +266,8 @@ export default ({
       console.log(index, row)
       dialogFormVisible.value = true;
       loading.value = false;
+
+      console.log(form);
 
       form.value = Tool.copy(row);
     }

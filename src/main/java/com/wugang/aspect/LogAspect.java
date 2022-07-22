@@ -1,7 +1,8 @@
 package com.wugang.aspect;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.support.spring.PropertyPreFilters;
+import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -19,7 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import java.security.PublicKey;
+import java.util.List;
+import java.util.Set;
 
 @Aspect
 @Component
@@ -68,11 +70,11 @@ public class LogAspect {
             arguments[i] = args[i];
         }
         // 排除字段，敏感字段或太长的字段不显示
-        String[] excludeProperties = {"password", "file"};
-        PropertyPreFilters filters = new PropertyPreFilters();
-        PropertyPreFilters.MySimplePropertyPreFilter excludefilter = filters.addFilter();
-        excludefilter.addExcludes(excludeProperties);
-        LOGGER.info("请求参数: {}", JSONObject.toJSONString(arguments, excludefilter));
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
+        Set<String> excludes = filter.getExcludes();
+        excludes.add("password");
+        excludes.add("file");
+        LOGGER.info("请求参数: {}", JSONObject.toJSONString(arguments, filter));
     }
 
     /**
@@ -86,11 +88,11 @@ public class LogAspect {
         long startTime = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         // 排除字段，敏感字段或太长的字段不显示
-        String[] excludeProperties = {"password", "file"};
-        PropertyPreFilters filters = new PropertyPreFilters();
-        PropertyPreFilters.MySimplePropertyPreFilter excludefilter = filters.addFilter();
-        excludefilter.addExcludes(excludeProperties);
-        LOGGER.info("返回结果：{}", JSONObject.toJSONString(result, excludefilter));
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
+        Set<String> excludes = filter.getExcludes();
+        excludes.add("password");
+        excludes.add("file");
+        LOGGER.info("返回结果：{}", JSONObject.toJSONString(result, filter));
         LOGGER.info("--------------- LogAspect结束，耗时：{} ms ----------------", System.currentTimeMillis() - startTime);
         return result;
     }

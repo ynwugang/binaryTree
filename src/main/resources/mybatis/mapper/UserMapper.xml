@@ -16,13 +16,20 @@
         </where>
     </select>
 
+    <!-- 根据loginName查询用户信息 -->
+    <select id="queryUserByLoginName" parameterType="String" resultType="User">
+        select id,
+               login_name,
+               `name`,
+               password
+        from user
+        where login_name = #{loginName}
+    </select>
+
     <!-- 更新电子书 -->
     <update id="updateUser" parameterType="User">
         update user
         <set>
-            <if test="loginName != null and loginName != ''">
-                login_name = #{loginName},
-            </if>
             <if test="name != null and name != ''">
                 `name` = #{name},
             </if>
@@ -41,6 +48,8 @@
 
     <!-- 根据ID删除User -->
     <delete id="deleteUserById" parameterType="String">
-        delete from user where id = #{id}
+        delete
+        from user
+        where id = #{id}
     </delete>
 </mapper>

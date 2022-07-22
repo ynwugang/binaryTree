@@ -10,11 +10,18 @@ import java.util.List;
 @Repository
 public interface UserMapper {
     /**
-     * 查询电子书列表
+     * 查询user列表
      * @param user
      * @return
      */
     List<User> queryList(User user);
+
+    /**
+     * 根据loginName查询用户信息
+     * @param loginName
+     * @return
+     */
+    List<User> queryUserByLoginName(String loginName);
 
     /**
      * 更新user

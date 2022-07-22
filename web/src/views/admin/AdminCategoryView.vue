@@ -145,7 +145,7 @@ export default ({
           }
       ).then(() => {
         //执行保存操作
-        saveCategory(form.value);
+        saveCategory();
         //给出信息提示
         ElMessage({
           type: 'success',
@@ -165,7 +165,7 @@ export default ({
      * @param index
      * @param row
      */
-    const saveCategory = (row: category) => {
+    const saveCategory = () => {
       loading.value = true;
       axios.post("/category/saveCategory", form.value).then((response) => {
         //获取返回值

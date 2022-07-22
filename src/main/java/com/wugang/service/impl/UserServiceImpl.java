@@ -2,6 +2,7 @@ package com.wugang.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wugang.exception.ConditionException;
 import com.wugang.mapper.UserMapper;
 import com.wugang.pojo.User;
 import com.wugang.request.UserQueryRequest;
@@ -78,9 +79,16 @@ public class UserServiceImpl implements UserService {
         User user = CopyUtil.copy(userRequest, User.class);
 
         if (ObjectUtils.isEmpty(userRequest.getId())){
-            //新增
-            user.setId(String.valueOf(snowFlake.nextId()));
-            userMapper.insertUser(user);
+            List<User> users = userMapper.queryUserByLoginName(user.getLoginName());
+            if (ObjectUtils.isEmpty(users)){
+                //新增
+                user.setId(String.valueOf(snowFlake.nextId()));
+                userMapper.insertUser(user);
+            } else {
+                //用户名已存在
+                throw new ConditionException("用户名已存在");
+            }
+
         } else {
             //更新
             userMapper.updateUser(user);

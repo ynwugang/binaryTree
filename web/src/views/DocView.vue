@@ -80,9 +80,9 @@
 <script lang="ts">
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 
-import {ref, onMounted, shallowRef, onBeforeUnmount} from "vue";
+import {ref, onMounted} from "vue";
 import axios from "axios";
-import {ElMessage, ElMessageBox} from 'element-plus'
+import {ElMessage} from 'element-plus'
 import {Tool} from "@/util/tool";
 import {useRoute} from "vue-router";
 

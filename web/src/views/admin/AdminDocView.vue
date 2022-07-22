@@ -50,6 +50,7 @@
             </el-form-item>
             <el-form-item>
               <el-tree-select
+                  style="width: 100%"
                   placeholder="请选择父文档"
                   v-model="form.parent"
                   :data="treeSelectData"
@@ -105,10 +106,15 @@ export default ({
   },
   setup() {
     const docs = ref();
-
     const route = useRoute();
     //电子书ID
     const ebookId = route.params.ebookId;
+    //表单数据
+    const form = ref();
+    form.value = {}
+    //文档树
+    const treeSelectData = ref();
+    treeSelectData.value = [];
 
     /**
      * 数据查询
@@ -123,7 +129,7 @@ export default ({
           // docs.value = data.content;
           docs.value = Tool.array2Tree(data.content, '0')
 
-          console.log("docs.value", docs.value);
+          add();
         } else {
           ElMessage.error(data.message);
         }
@@ -140,18 +146,6 @@ export default ({
       voteCount: number
       content: string
     }
-
-
-    onMounted(() => {
-      handleQuery();
-    });
-
-    //表单数据
-    const form = ref();
-    form.value = {}
-
-    const treeSelectData = ref();
-    treeSelectData.value = [];
 
     // 编辑器实例，必须用 shallowRef
     const editorRef = shallowRef()
@@ -419,6 +413,11 @@ export default ({
             }
           });
     };
+
+    onMounted(() => {
+      //查询数据
+      handleQuery()
+    });
 
     return {
       docs,

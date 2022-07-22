@@ -207,11 +207,6 @@ export default ({
         form.value.content = editorRef.value.getHtml();
         //执行保存操作
         saveDoc();
-        //给出信息提示
-        ElMessage({
-          type: 'success',
-          message: '保存成功',
-        })
       }).catch(() => {
 
         // ElMessage({
@@ -232,6 +227,14 @@ export default ({
         if (data.success) {
           //重新加载列表数据
           handleQuery();
+
+          //给出信息提示
+          ElMessage({
+            type: 'success',
+            message: '保存成功',
+          })
+        } else {
+          ElMessage.error(data.message);
         }
       });
     }

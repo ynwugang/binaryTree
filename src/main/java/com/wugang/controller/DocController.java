@@ -1,16 +1,13 @@
 package com.wugang.controller;
 
-import com.wugang.pojo.Content;
 import com.wugang.pojo.Doc;
-import com.wugang.request.DocQueryRequest;
 import com.wugang.request.DocSaveRequest;
-import com.wugang.response.DocQueryResponse;
 import com.wugang.response.CommonResponse;
-import com.wugang.response.PageResponse;
 import com.wugang.service.impl.DocServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -46,7 +43,7 @@ public class DocController {
      * @return
      */
     @PostMapping("/saveDoc")
-    public CommonResponse saveDoc(@RequestBody DocSaveRequest docRequest) {
+    public CommonResponse saveDoc(@Valid @RequestBody DocSaveRequest docRequest) {
         docService.saveDoc(docRequest);
         return CommonResponse.success();
     }

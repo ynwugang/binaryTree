@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wugang.mapper.UserMapper">
+
+    <!-- 查询user列表 -->
+    <select id="queryList" parameterType="User" resultType="User">
+        select *
+        from user
+        where 1=1
+        <if test="id != null and id != ''">
+            and id = #{id}
+        </if>
+        <if test="parent != null and parent != ''">
+            and parent = #{parent}
+        </if>
+        <if test="name != null and name != ''">
+            <bind name="pName" value="'%' + name + '%'"/>
+            and `name` like #{pName}
+        </if>
+        <if test="sort != null and sort != ''">
+            and sort = #{sort}
+        </if>
+        order by sort asc
+    </select>
+
+    <!-- 查询所有的分类信息 -->
+    <select id="queryAllList" parameterType="User" resultType="User">
+        select
+        id, ebook_id, parent, `name`, sort, view_count, vote_count
+        from user
+        where ebook_id = #{ebookId}
+        order by sort asc
+    </select>
+
+    <!-- 更新user -->
+    <update id="updateUser" parameterType="User">
+        update user
+        <set>
+            <if test="ebookId != null and ebookId != ''">
+                ebook_id = #{ebookId},
+            </if>
+            <if test="parent != null and parent != ''">
+                parent = #{parent},
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort = #{sort},
+            </if>
+            <if test="viewCount != null and viewCount != ''">
+                view_count = #{viewCount},
+            </if>
+            <if test="voteCount != null and voteCount != ''">
+                vote_count = #{voteCount},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 新增User -->
+    <insert id="insertUser" parameterType="User">
+        insert into user (id, ebook_id, parent, `name`, sort, view_count, vote_count)
+        values (#{id}, #{ebookId}, #{parent}, #{name}, #{sort}, #{viewCount}, #{voteCount})
+    </insert>
+
+    <!-- 根据ID删除User -->
+    <delete id="deleteUserById" parameterType="list">
+        delete
+        from user
+        where id in
+        <foreach item="id" index="index" collection="idList"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface UserMapper {
     /**
-     * 查询user列表
+     * 查询电子书列表
      * @param user
      * @return
      */
@@ -32,14 +32,8 @@ public interface UserMapper {
 
     /**
      * 根据ID删除User
-     * @param idList
+     * @param id
      * @return
      */
-    int deleteUserById(List<String> idList);
-
-    /**
-     * 获取所有User
-     * @return
-     */
-    List<User> queryAllList(String ebookId);
+    int deleteUserById(String id);
 }

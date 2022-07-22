@@ -10,6 +10,7 @@
           @select="handleSelect"
       >
         <el-menu-item index="/">首页</el-menu-item>
+        <el-menu-item index="/admin/user">用户管理</el-menu-item>
         <el-menu-item index="/admin/ebook">电子书管理</el-menu-item>
         <el-menu-item index="/admin/category">分类管理</el-menu-item>
         <el-menu-item index="4" disabled>Info</el-menu-item>

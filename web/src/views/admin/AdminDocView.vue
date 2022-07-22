@@ -98,7 +98,7 @@ import {useRoute} from "vue-router";
 import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
 
 export default ({
-  name: 'DocView',
+  name: 'AdminDocView',
   components: {
     Editor,
     Toolbar
@@ -114,13 +114,8 @@ export default ({
      * 数据查询
      **/
     const handleQuery = () => {
-      axios.get("/doc/allList",
-          {
-            params: {
-              ebookId: ebookId
-            }
-          }
-      ).then((response) => {
+      axios.get(`/doc/allList/${ebookId}`)
+          .then((response) => {
         // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
         docs.value = [];
         const data = response.data;

@@ -39,10 +39,8 @@ public class DocServiceImpl implements DocService {
      * @return
      */
     @Override
-    public List<Doc> queryAllList(DocQueryRequest docQueryRequest) {
-        Doc doc = CopyUtil.copy(docQueryRequest, Doc.class);
-
-        return docMapper.queryAllList(doc);
+    public List<Doc> queryAllList(String ebookId) {
+        return docMapper.queryAllList(ebookId);
     }
 
     /**

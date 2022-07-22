@@ -137,7 +137,7 @@ import { Tool } from "@/util/tool";
 import router from "@/router";
 
 export default ({
-  name: 'EbookView',
+  name: 'AdminEbookView',
   setup() {
     const param = ref();
     param.value = {};

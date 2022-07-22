@@ -24,9 +24,9 @@ public class DocController {
      * 所有doc信息
      * @return
      */
-    @GetMapping("/allList")
-    public CommonResponse allList(DocQueryRequest docQueryRequest) {
-        List<Doc> categories = docService.queryAllList(docQueryRequest);
+    @GetMapping("/allList/{id}")
+    public CommonResponse allList(@PathVariable("id") String ebookId) {
+        List<Doc> categories = docService.queryAllList(ebookId);
         return new CommonResponse(categories);
     }
 

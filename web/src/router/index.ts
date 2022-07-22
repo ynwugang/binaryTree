@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
-import EbookView from '../views/admin/EbookView.vue'
-import CategorykView from '../views/admin/CategorykView.vue'
-import DocView from "../views/admin/DocView.vue";
+import AdminEbookView from '../views/admin/AdminEbookView.vue'
+import AdminCategoryView from '../views/admin/AdminCategoryView.vue'
+import AdminDocView from "../views/admin/AdminDocView.vue";
+import DocView from "../views/DocView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -22,16 +23,21 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/admin/ebook',
-    name: 'ebook',
-    component: EbookView
+    name: 'adminEbook',
+    component: AdminEbookView
   },
   {
     path: '/admin/category',
-    name: 'category',
-    component: CategorykView
+    name: 'adminCategory',
+    component: AdminCategoryView
   },
   {
     path: '/admin/doc/:ebookId',
+    name: 'AdminDoc',
+    component: AdminDocView
+  },
+  {
+    path: '/doc/:ebookId',
     name: 'doc',
     component: DocView
   }

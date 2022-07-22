@@ -9,7 +9,7 @@ import com.wugang.response.PageResponse;
 import java.util.List;
 
 public interface DocService {
-    List<Doc> queryAllList(DocQueryRequest docQueryRequest);
+    List<Doc> queryAllList(String ebookId);
 
     void saveDoc(DocSaveRequest docRequest);
 

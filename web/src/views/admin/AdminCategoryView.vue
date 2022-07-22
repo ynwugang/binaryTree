@@ -91,7 +91,7 @@ import {ElMessage, ElMessageBox} from 'element-plus'
 import { Tool } from "@/util/tool";
 
 export default ({
-  name: 'CategoryView',
+  name: 'AdminCategoryView',
   setup() {
     const categorys = ref();
 

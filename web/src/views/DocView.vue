@@ -13,15 +13,67 @@
           />
         </el-col>
         <el-col :span="18">
-          <div>
-            <h1>文档内容</h1>
-          </div>
+          <div class="editor-content-view" :innerHTML="html"></div>
         </el-col>
       </el-row>
     </el-main>
   </el-container>
 </template>
 
+<style>
+.editor-content-view {
+  /*border: 3px solid #ccc;*/
+  /*border-radius: 5px;*/
+  padding: 0 10px;
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.editor-content-view p,
+.editor-content-view li {
+  white-space: pre-wrap; /* 保留空格 */
+}
+
+.editor-content-view blockquote {
+  border-left: 8px solid #d0e5f2;
+  padding: 10px 10px;
+  margin: 10px 0;
+  background-color: #f1f1f1;
+}
+
+.editor-content-view code {
+  font-family: monospace;
+  background-color: #eee;
+  padding: 3px;
+  border-radius: 3px;
+}
+.editor-content-view pre>code {
+  display: block;
+  padding: 10px;
+}
+
+.editor-content-view table {
+  border-collapse: collapse;
+}
+.editor-content-view td,
+.editor-content-view th {
+  border: 1px solid #ccc;
+  min-width: 50px;
+  height: 20px;
+}
+.editor-content-view th {
+  background-color: #f1f1f1;
+}
+
+.editor-content-view ul,
+.editor-content-view ol {
+  padding-left: 20px;
+}
+
+.editor-content-view input[type="checkbox"] {
+  margin-right: 5px;
+}
+</style>
 
 <script lang="ts">
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
@@ -59,7 +111,8 @@ export default ({
     const route = useRoute();
     //电子书ID
     const ebookId = route.params.ebookId;
-
+    //内联HTML内容
+    const html = ref();
 
     /**
      * 数据查询
@@ -80,12 +133,29 @@ export default ({
     };
 
     /**
+     * 内容查询
+     * @param id
+     */
+    const handleQueryContent = (id: string) => {
+      axios.get(`/doc/content/${id}`)
+          .then((response) => {
+            const data = response.data;
+            if (data.success) {
+              html.value = data.content;
+            } else {
+              ElMessage.error(data.message);
+            }
+          })
+    };
+
+    /**
      * 节点点击事假
      * @param data
      */
     const handleNodeClick = (data: doc) => {
       console.log(data)
-    }
+      handleQueryContent(data.id);
+    };
 
     onMounted(() => {
       handleQuery();
@@ -94,6 +164,7 @@ export default ({
 
     return {
       docs,
+      html,
       handleNodeClick
     };
   }

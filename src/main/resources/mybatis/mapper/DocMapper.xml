@@ -38,6 +38,9 @@
     <update id="updateDoc" parameterType="Doc">
         update doc
         <set>
+            <if test="ebookId != null and ebookId != ''">
+                ebook_id = #{ebookId},
+            </if>
             <if test="parent != null and parent != ''">
                 parent = #{parent},
             </if>
@@ -47,14 +50,20 @@
             <if test="sort != null and sort != ''">
                 sort = #{sort},
             </if>
+            <if test="viewCount != null and viewCount != ''">
+                view_count = #{viewCount},
+            </if>
+            <if test="voteCount != null and voteCount != ''">
+                vote_count = #{voteCount},
+            </if>
         </set>
         where id = #{id}
     </update>
 
     <!-- 新增Doc -->
     <insert id="insertDoc" parameterType="Doc">
-        insert into doc (id, parent, `name`, sort)
-        values (#{id}, #{parent}, #{name}, #{sort})
+        insert into doc (id, ebook_id, parent, `name`, sort, view_count, vote_count)
+        values (#{id}, #{ebookId}, #{parent}, #{name}, #{sort}, #{viewCount}, #{voteCount})
     </insert>
 
     <!-- 根据ID删除Doc -->

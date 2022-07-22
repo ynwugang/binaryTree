@@ -2,7 +2,7 @@
   <el-container style="padding: 5px 20px">
     <el-main style="padding: 0">
       <el-row>
-        <el-col :span="8">
+        <el-col :span="10">
           <!-- 搜索框和查询、新增按钮 -->
           <p>
             <el-button type="success" @click="add">新增</el-button>
@@ -38,7 +38,7 @@
           </el-table>
         </el-col>
 
-        <el-col :span="16">
+        <el-col :span="14">
 
           <p>
             <el-button type="primary" @click="openSave">保存</el-button>
@@ -122,18 +122,18 @@ export default ({
     const handleQuery = () => {
       axios.get(`/doc/allList/${ebookId}`)
           .then((response) => {
-        // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
-        docs.value = [];
-        const data = response.data;
-        if (data.success) {
-          // docs.value = data.content;
-          docs.value = Tool.array2Tree(data.content, '0')
+            // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
+            docs.value = [];
+            const data = response.data;
+            if (data.success) {
+              // docs.value = data.content;
+              docs.value = Tool.array2Tree(data.content, '0')
 
-          add();
-        } else {
-          ElMessage.error(data.message);
-        }
-      });
+              add();
+            } else {
+              ElMessage.error(data.message);
+            }
+          });
     };
 
     interface doc {
@@ -153,13 +153,6 @@ export default ({
     // 内容 HTML
     const valueHtml = ref()
 
-    // // 模拟 ajax 异步获取内容
-    // onMounted(() => {
-    //   setTimeout(() => {
-    //     valueHtml.value = '<p>模拟 Ajax 异步设置内容</p>'
-    //   }, 1500)
-    // })
-
     /**
      * 查询文档内容
      * @param id
@@ -168,7 +161,7 @@ export default ({
       axios.get(`/doc/content/${id}`)
           .then((response) => {
             const data = response.data;
-            if (data.success){
+            if (data.success) {
               valueHtml.value = data.content;
             } else {
               ElMessage.error(data.message);
@@ -202,11 +195,7 @@ export default ({
             type: 'warning',
           }
       ).then(() => {
-
         form.value.content = editorRef.value.getHtml();
-
-        console.log("form: ", form);
-
         //执行保存操作
         saveDoc();
         //给出信息提示
@@ -299,6 +288,9 @@ export default ({
       form.value = {
         ebookId: ebookId
       };
+
+      console.log("ebookId", ebookId)
+      console.log("form", form.value)
       // 为选择树赋值
       treeSelectData.value = Tool.copy(docs.value);
       // 为选择树添加一个“无”

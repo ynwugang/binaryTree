@@ -77,10 +77,12 @@ public class DocServiceImpl implements DocService {
      */
     @Override
     public void deleteDoc(String docIds) {
+        //将传递的参数转换为list
         List<String> idList = Arrays.asList(docIds.split(","));
-
-
+        //删除doc
         docMapper.deleteDocById(idList);
+        //删除content
+        contentMapper.deleteContentById(idList);
     }
 
     /**

@@ -29,7 +29,7 @@
         </el-table-column>
         <el-table-column label="密码">
           <template #default="scope">
-            <span style="margin-left: 10px">{{ scope.row.password }}/{{ scope.row.category2Id }}</span>
+            <span style="margin-left: 10px">{{ scope.row.password }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -94,6 +94,9 @@ import {ref, onMounted} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {Tool} from "@/util/tool";
+
+declare let hexMd5: any;
+declare let KEY: any;
 
 export default ({
   name: 'AdminUserView',
@@ -224,6 +227,8 @@ export default ({
     const saveUser = () => {
       //加载动画
       loading.value = true;
+
+      form.value.password = hexMd5(form.value.password + KEY);
 
       axios.post("/user/saveUser", form.value)
           .then((response) => {

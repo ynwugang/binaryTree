@@ -14,10 +14,12 @@ import com.wugang.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -77,6 +79,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveUser(UserSaveRequest userRequest) {
         User user = CopyUtil.copy(userRequest, User.class);
+
+        //密码MD5加密
+        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
 
         if (ObjectUtils.isEmpty(userRequest.getId())){
             List<User> users = userMapper.queryUserByLoginName(user.getLoginName());

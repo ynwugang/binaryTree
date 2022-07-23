@@ -1,11 +1,13 @@
 package com.wugang.controller;
 
 import com.wugang.pojo.User;
+import com.wugang.request.UserLoginRequest;
 import com.wugang.request.UserQueryRequest;
 import com.wugang.request.UserResetPasswordRequest;
 import com.wugang.request.UserSaveRequest;
 import com.wugang.response.CommonResponse;
 import com.wugang.response.PageResponse;
+import com.wugang.response.UserLoginResponse;
 import com.wugang.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -61,5 +63,16 @@ public class UserController {
     public CommonResponse deleteUser(@PathVariable("id") String userId) {
         userService.deleteUser(userId);
         return CommonResponse.success();
+    }
+
+    /**
+     * 登陆
+     * @param userLoginRequest
+     * @return
+     */
+    @PostMapping("/login")
+    public CommonResponse login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
+        UserLoginResponse userLoginResponse = userService.login(userLoginRequest);
+        return new CommonResponse(userLoginResponse);
     }
 }

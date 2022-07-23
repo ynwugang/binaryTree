@@ -21,7 +21,7 @@ public interface UserMapper {
      * @param loginName
      * @return
      */
-    List<User> queryUserByLoginName(String loginName);
+    User queryUserByLoginName(String loginName);
 
     /**
      * 更新user

@@ -9,13 +9,15 @@ public class ConditionException extends RuntimeException {
 
     private boolean success;
 
-    public ConditionException(boolean success, String name) {
-        super(name);
+    private conditionExceptionCode code;
+
+    public ConditionException(boolean success, conditionExceptionCode code) {
+        super(code.getDesc());
         this.success = success;
     }
 
-    public ConditionException(String name) {
-        super(name);
+    public ConditionException(conditionExceptionCode code) {
+        super(code.getDesc());
         success = false;
     }
 

@@ -74,7 +74,7 @@
           <el-form-item label="昵称" :label-width="formLabelWidth">
             <el-input v-model="form.name" autocomplete="off"/>
           </el-form-item>
-          <el-form-item label="密码" :label-width="formLabelWidth">
+          <el-form-item label="密码" :label-width="formLabelWidth" v-show="!form.id">
             <el-input v-model="form.password" autocomplete="off"/>
           </el-form-item>
         </el-form>

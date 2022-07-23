@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
 
         } else {
             //更新
+            user.setPassword("");
             userMapper.updateUser(user);
         }
     }

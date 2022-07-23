@@ -6,6 +6,7 @@ import com.wugang.exception.ConditionException;
 import com.wugang.mapper.UserMapper;
 import com.wugang.pojo.User;
 import com.wugang.request.UserQueryRequest;
+import com.wugang.request.UserResetPasswordRequest;
 import com.wugang.request.UserSaveRequest;
 import com.wugang.response.PageResponse;
 import com.wugang.service.UserService;
@@ -16,10 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -108,5 +107,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(String userId) {
         userMapper.deleteUserById(userId);
+    }
+
+    /**
+     * 重置用户密码
+     * @param userResetPasswordRequest
+     */
+    @Override
+    public void resetPassword(UserResetPasswordRequest userResetPasswordRequest) {
+        User user = CopyUtil.copy(userResetPasswordRequest, User.class);
+
+        //密码MD5加密
+        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+
+        userMapper.updateUser(user);
     }
 }

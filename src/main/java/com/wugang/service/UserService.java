@@ -2,6 +2,7 @@ package com.wugang.service;
 
 import com.wugang.pojo.User;
 import com.wugang.request.UserQueryRequest;
+import com.wugang.request.UserResetPasswordRequest;
 import com.wugang.request.UserSaveRequest;
 import com.wugang.response.PageResponse;
 
@@ -12,4 +13,6 @@ public interface UserService {
     void saveUser(UserSaveRequest userRequest);
 
     void deleteUser(String userId);
+
+    void resetPassword(UserResetPasswordRequest userResetPasswordRequest);
 }

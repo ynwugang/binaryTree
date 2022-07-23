@@ -2,6 +2,7 @@ package com.wugang.controller;
 
 import com.wugang.pojo.User;
 import com.wugang.request.UserQueryRequest;
+import com.wugang.request.UserResetPasswordRequest;
 import com.wugang.request.UserSaveRequest;
 import com.wugang.response.CommonResponse;
 import com.wugang.response.PageResponse;
@@ -37,6 +38,17 @@ public class UserController {
     @PostMapping("/saveUser")
     public CommonResponse saveUser(@Valid @RequestBody UserSaveRequest userRequest) {
         userService.saveUser(userRequest);
+        return CommonResponse.success();
+    }
+
+    /**
+     * 重置密码
+     * @param userResetPasswordRequest
+     * @return
+     */
+    @PostMapping("/reset-password")
+    public CommonResponse resetPassword(@Valid @RequestBody UserResetPasswordRequest userResetPasswordRequest) {
+        userService.resetPassword(userResetPasswordRequest);
         return CommonResponse.success();
     }
 

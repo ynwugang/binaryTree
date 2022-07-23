@@ -37,6 +37,12 @@
             <el-button
                 size="small"
                 type="primary"
+                @click="handleReset(scope.$index, scope.row)"
+            >重置密码
+            </el-button>
+            <el-button
+                size="small"
+                type="primary"
                 @click="handleEdit(scope.$index, scope.row)"
             >编辑
             </el-button>
@@ -82,6 +88,21 @@
           <span class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取消</el-button>
             <el-button type="primary" @click="openSave">确认</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- 弹出层-密码重置 -->
+      <el-dialog v-loading="loading" v-model="resetFormVisible" title="重置密码">
+        <el-form :model="form">
+          <el-form-item label="新密码" :label-width="formLabelWidth">
+            <el-input v-model="form.password" autocomplete="off"/>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="resetFormVisible = false">取消</el-button>
+            <el-button type="primary" @click="handleRestOk">确认</el-button>
           </span>
         </template>
       </el-dialog>
@@ -143,14 +164,6 @@ export default ({
       });
     };
 
-    onMounted(() => {
-      handleQuery(
-          {
-            page: pagination.value.current,
-            size: pagination.value.pageSize
-          });
-    });
-
     /**
      * 每页显示条数改变
      * @param val
@@ -194,7 +207,6 @@ export default ({
     //loading
     const loading = ref(true);
 
-    const options = ref([]);
 
 
     //保存确认对话框
@@ -334,6 +346,91 @@ export default ({
           });
     };
 
+    //重置密码弹出层
+    const resetFormVisible = ref(false)
+
+    /**
+     * 保存重置密码
+     */
+    const handleRestOk = () => {
+      ElMessageBox.confirm(
+          '确认保存吗?',
+          '提示',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '再想想',
+            type: 'warning',
+          }
+      ).then(() => {
+        //执行保存操作
+        saveResetPassword();
+      })
+    }
+
+    /**
+     * 保存重置密码
+     * @param index
+     * @param row
+     */
+    const saveResetPassword = () => {
+      //加载动画
+      loading.value = true;
+
+      form.value.password = hexMd5(form.value.password + KEY);
+
+      axios.post("/user/reset-password", form.value)
+          .then((response) => {
+            console.log("form", form.value);
+            if (response.data.success) {
+              //停止加载动画
+              loading.value = false;
+              //关闭弹出的表单
+              resetFormVisible.value = false;
+              //重新加载列表数据
+              handleQuery(
+                  {
+                    page: pagination.value.current,
+                    size: pagination.value.pageSize
+                  }
+              );
+              //给出信息提示
+              ElMessage({
+                type: 'success',
+                message: '保存成功',
+              })
+            } else {
+              ElMessage({
+                type: 'error',
+                message: response.data.message,
+              })
+            }
+          });
+    }
+
+    /**
+     * 重置密码按钮
+     * @param index
+     * @param row
+     */
+    const handleReset = (index: number, row: user) => {
+      //展示重置密码弹出层
+      resetFormVisible.value = true;
+      loading.value = false;
+      //复制user对象
+      form.value = Tool.copy(row);
+      //清空密码
+      form.value.password = null;
+    };
+
+
+    onMounted(() => {
+      handleQuery(
+          {
+            page: pagination.value.current,
+            size: pagination.value.pageSize
+          });
+    });
+
     return {
       users,
       pagination,
@@ -354,7 +451,9 @@ export default ({
       param,
       handleQuery,
 
-      options
+      resetFormVisible,
+      handleReset,
+      handleRestOk
     };
   }
 

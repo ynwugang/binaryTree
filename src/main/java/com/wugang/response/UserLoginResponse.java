@@ -27,4 +27,9 @@ public class UserLoginResponse {
      * 昵称
      */
     private String name;
+
+    /**
+     * token
+     */
+    private String token;
 }

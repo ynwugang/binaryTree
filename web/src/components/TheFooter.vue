@@ -7,15 +7,25 @@
                   width: 100%;
                   height: 60px;
                   line-height: 60px">
-        这是一个footer
+        这是一个footer{{ user.name }}
       </div>
 
     </el-footer>
   </el-container>
 </template>
 
-<script>
+<script lang="ts">
+import {computed} from "vue";
+import store from "@/store";
+
 export default {
-  name: "TheFooter"
+  name: "TheFooter",
+  setup() {
+    const user = computed(() => store.state.user);
+
+    return {
+      user
+    };
+  }
 }
 </script>

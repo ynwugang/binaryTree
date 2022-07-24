@@ -16,8 +16,8 @@
         <el-menu-item index="/admin/category">分类管理</el-menu-item>
         <el-menu-item index="/about">关于我们</el-menu-item>
         <div class="flex-grow" />
-        <el-menu-item v-show="!loginState" class="login-menu" index="toLogin">登陆</el-menu-item>
-        <el-sub-menu v-show="loginState" index="userInfo">
+        <el-menu-item v-show="!userInfo.id" class="login-menu" index="toLogin">登陆</el-menu-item>
+        <el-sub-menu v-show="userInfo.id" index="userInfo">
           <template #title>{{ userInfo.name }}</template>
           <el-menu-item index="2-1">item one</el-menu-item>
           <el-menu-item index="2-2">item two</el-menu-item>
@@ -47,10 +47,11 @@
 </template>
 
 <script lang="ts">
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import router from "@/router";
 import {ElMessage} from "element-plus";
 import axios from "axios";
+import store from "@/store";
 
 declare let hexMd5: any;
 declare let KEY: any;
@@ -68,16 +69,8 @@ export default {
       }
     };
 
-    // onMounted(() => {
-    //   console.log("path", router.currentRoute);
-    //   console.log("value", (router.currentRoute).value);
-    //
-    // });
-
     //用户信息
-    const userInfo = ref();
-    userInfo.value = {};
-    const loginState = ref(false);
+    const userInfo = computed(() => store.state.user)
 
     //登陆弹出表单相关
     const loginVisible = ref(false)
@@ -85,7 +78,10 @@ export default {
     const formLabelWidth = '140px'
     //表单数据
     const loginUser = ref();
-    loginUser.value = {};
+    loginUser.value = {
+      loginName: "test",
+      password: "abc123456"
+    };
 
     /**
      * 登陆
@@ -106,13 +102,8 @@ export default {
             //获取返回值
             const data = response.data;
             if (data.success) {
-
-              console.log("data.content: ",data.content);
-
-              userInfo.value = data.content;
-
-              loginState.value = true;
-
+              //给store赋值即可
+              store.commit("setUser", userInfo.value);
               //关闭弹出的表单
               loginVisible.value = false;
               //给出信息提示
@@ -148,8 +139,7 @@ export default {
       toLogin,
       login,
       loading,
-      userInfo,
-      loginState
+      userInfo
     }
   }
 }

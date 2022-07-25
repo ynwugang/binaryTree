@@ -2,6 +2,8 @@
   <el-container>
     <el-header>
       <el-menu
+          :default-active="activeIndex"
+
           class="el-menu-demo"
           mode="horizontal"
           :ellipsis="false"
@@ -17,12 +19,11 @@
         <el-menu-item index="/about">关于我们</el-menu-item>
         <div class="flex-grow" />
         <el-menu-item v-show="!userInfo.id" class="login-menu" index="toLogin">登陆</el-menu-item>
-        <el-sub-menu v-show="userInfo.id" index="userInfo">
-          <template #title>{{ userInfo.name }}</template>
-          <el-menu-item index="2-1">item one</el-menu-item>
-          <el-menu-item index="2-2">item two</el-menu-item>
-          <el-menu-item index="2-3">item three</el-menu-item>
-        </el-sub-menu>
+        <el-menu-item v-show="userInfo.id" class="login-menu" index="userInfo">{{ userInfo.name }}</el-menu-item>
+        <el-menu-item v-show="userInfo.id" index="toLogout">退出登陆</el-menu-item>
+<!--        <el-sub-menu v-show="userInfo.id" index="userInfo">-->
+<!--          <template #title>{{ userInfo.name }}</template>-->
+<!--        </el-sub-menu>-->
       </el-menu>
 
       <!-- 弹出层-密码重置 -->
@@ -52,6 +53,8 @@ import router from "@/router";
 import {ElMessage} from "element-plus";
 import axios from "axios";
 import store from "@/store";
+import {ElMessageBox} from "element-plus/es";
+import {Tool} from "@/util/tool";
 
 declare let hexMd5: any;
 declare let KEY: any;
@@ -59,10 +62,19 @@ declare let KEY: any;
 export default {
   name: "the-header",
   setup() {
-    const activeIndex = ref('/')
+    const activeIndex = (index: any) => {
+      if (Tool.isEmpty(index)){
+        return "/"
+      } else {
+        return index
+      }
+    };
+
     const handleSelect = (key: string, keyPath: string[]) => {
       if (key === "toLogin") {
         toLogin();
+      } else if (key === "toLogout"){
+        toLogout();
       } else {
         console.log(key, keyPath)
         router.push(key);
@@ -84,6 +96,13 @@ export default {
     };
 
     /**
+     * 打开登陆窗口
+     */
+    const toLogin = () => {
+      loginVisible.value = true;
+    }
+
+    /**
      * 登陆
      * @param index
      * @param row
@@ -103,7 +122,7 @@ export default {
             const data = response.data;
             if (data.success) {
               //给store赋值即可
-              store.commit("setUser", userInfo.value);
+              store.commit("setUser", data.content);
               //关闭弹出的表单
               loginVisible.value = false;
               //给出信息提示
@@ -123,10 +142,48 @@ export default {
     }
 
     /**
-     * 打开登陆窗口
+     * 退出登陆确认
      */
-    const toLogin = () => {
-      loginVisible.value = true;
+    const toLogout = () => {
+      ElMessageBox.confirm(
+          '确定要退出登陆吗?',
+          '提示',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '再想想',
+            type: 'warning',
+          }
+      ).then(() => {
+        //执行退出操作
+        logout();
+      })
+    };
+
+    /**
+     * 登陆
+     * @param index
+     * @param row
+     */
+    const logout = () => {
+      axios.get(`/user/logout/${userInfo.value.token}`)
+          .then((response) => {
+            //获取返回值
+            const data = response.data;
+            if (data.success) {
+              //给store赋空值
+              store.commit("setUser", {});
+
+              ElMessage({
+                type: 'success',
+                message: '退出登陆成功'
+              })
+            } else {
+              ElMessage({
+                type: 'error',
+                message: data.message,
+              })
+            }
+          });
     }
 
     return {

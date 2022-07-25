@@ -1,6 +1,8 @@
 package com.wugang.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wugang.exception.ConditionException;
+import com.wugang.exception.conditionExceptionCode;
 import com.wugang.pojo.User;
 import com.wugang.request.UserLoginRequest;
 import com.wugang.request.UserQueryRequest;
@@ -38,6 +40,7 @@ public class UserController {
 
     /**
      * 分页查询电子书列表
+     *
      * @param userRequest
      * @return
      */
@@ -49,6 +52,7 @@ public class UserController {
 
     /**
      * 保存电子书编辑
+     *
      * @param userRequest
      * @return
      */
@@ -60,6 +64,7 @@ public class UserController {
 
     /**
      * 重置密码
+     *
      * @param userResetPasswordRequest
      * @return
      */
@@ -71,6 +76,7 @@ public class UserController {
 
     /**
      * 删除电子书
+     *
      * @param userId
      * @return
      */
@@ -82,6 +88,7 @@ public class UserController {
 
     /**
      * 登陆
+     *
      * @param userLoginRequest
      * @return
      */
@@ -95,5 +102,21 @@ public class UserController {
         redisTemplate.opsForValue().set(token, JSONObject.toJSONString(userLoginResponse), 1800, TimeUnit.SECONDS);
 
         return new CommonResponse(userLoginResponse);
+    }
+
+    /**
+     * 退出登陆
+     *
+     * @param token
+     * @return
+     */
+    @GetMapping("/logout/{token}")
+    public CommonResponse logout(@PathVariable String token) {
+        if (redisTemplate.delete(token)) {
+            LOGGER.info("从redis中删除token：{}", token);
+            return CommonResponse.success();
+        } else {
+            throw new ConditionException(conditionExceptionCode.LOGOUT_USER_ERROR);
+        }
     }
 }

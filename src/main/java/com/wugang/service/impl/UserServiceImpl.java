@@ -1,5 +1,7 @@
 package com.wugang.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wugang.exception.ConditionException;
@@ -15,6 +17,10 @@ import com.wugang.response.UserLoginResponse;
 import com.wugang.service.UserService;
 import com.wugang.util.CopyUtil;
 import com.wugang.util.SnowFlake;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,6 +43,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 查询电子书列表
+     *
      * @param userRequest
      * @return
      */
@@ -51,7 +58,7 @@ public class UserServiceImpl implements UserService {
         User user = CopyUtil.copy(userRequest, User.class);
 
         //校验分页参数
-        if (userRequest.getPage() > 0 && userRequest.getSize() > 0){
+        if (userRequest.getPage() > 0 && userRequest.getSize() > 0) {
             //使用PageHelper分页插件实现分页查询
             PageHelper.startPage(userRequest.getPage(), userRequest.getSize());
         }
@@ -75,6 +82,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 保存电子书修改
+     *
      * @param userRequest
      * @return
      */
@@ -85,9 +93,9 @@ public class UserServiceImpl implements UserService {
         //密码MD5加密
         user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
 
-        if (ObjectUtils.isEmpty(userRequest.getId())){
+        if (ObjectUtils.isEmpty(userRequest.getId())) {
             User userDb = userMapper.queryUserByLoginName(user.getLoginName());
-            if (ObjectUtils.isEmpty(userDb)){
+            if (ObjectUtils.isEmpty(userDb)) {
                 //新增
                 user.setId(String.valueOf(snowFlake.nextId()));
                 userMapper.insertUser(user);
@@ -105,6 +113,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 删除电子书
+     *
      * @param userId
      */
     @Override
@@ -114,6 +123,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 重置用户密码
+     *
      * @param userResetPasswordRequest
      */
     @Override
@@ -128,27 +138,47 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 登陆
+     *
      * @param userLoginRequest
      * @return
      */
     @Override
     public UserLoginResponse login(UserLoginRequest userLoginRequest) {
-        //根据登录名查询用户信息
-        User userDb = userMapper.queryUserByLoginName(userLoginRequest.getLoginName());
-
-        if (ObjectUtils.isEmpty(userDb)){
+        //获取当前用户
+        Subject currentUser = SecurityUtils.getSubject();
+        //将需要验证的用户名和密码传入UsernamePasswordToken对象
+        UsernamePasswordToken token = new UsernamePasswordToken(userLoginRequest.getLoginName(), userLoginRequest.getPassword());
+        //执行登陆
+        try {
+            currentUser.login(token);
+        } catch (UnknownAccountException uae) {
             //用户不存在
-            LOGGER.info("用户名不存在，{}", userLoginRequest.getLoginName());
             throw new ConditionException(conditionExceptionCode.LOGIN_USER_ERROR);
-        } else {
-            if (userDb.getPassword().equals(DigestUtils.md5DigestAsHex(userLoginRequest.getPassword().getBytes()))){
-                //登陆成功
-                return CopyUtil.copy(userDb, UserLoginResponse.class);
-            } else {
-                //密码错误
-                LOGGER.info("密码错误，输入密码：{}，数据库密码：{}", userLoginRequest.getPassword(), userDb.getPassword());
-                throw new ConditionException(conditionExceptionCode.LOGIN_USER_ERROR);
-            }
+        } catch (IncorrectCredentialsException ice) {
+            //密码错误
+            throw new ConditionException(conditionExceptionCode.LOGIN_USER_ERROR);
+        } catch (AuthenticationException ae) {
+            //shiro登陆验证的最高异常
+            throw new ConditionException(conditionExceptionCode.LOGIN_USER_ERROR);
         }
+
+        //获取Session对象，这里的Session是shiro的Session，不是Http的Session
+        Session session = currentUser.getSession();
+        //获取用户信息，此处需要进行转换，存入session时候为POJO的User对象，返回给前端时需要转换为UserLoginResponse对象
+        UserLoginResponse user = CopyUtil.copy(currentUser.getPrincipal(), UserLoginResponse.class);
+        //将Token存入返回对象
+        user.setToken(String.valueOf(session.getId()));
+        //返回user
+        return user;
+    }
+
+    /**
+     * 根据loginName查询
+     * @param loginName
+     * @return
+     */
+    @Override
+    public User queryUserByLoginName(String loginName) {
+        return userMapper.queryUserByLoginName(loginName);
     }
 }

@@ -19,4 +19,11 @@ public interface UserService {
     void resetPassword(UserResetPasswordRequest userResetPasswordRequest);
 
     UserLoginResponse login(UserLoginRequest userLoginRequest);
+
+    /**
+     * 根据loginName查询用户信息
+     * @param loginName
+     * @return
+     */
+    User queryUserByLoginName(String loginName);
 }

@@ -111,10 +111,12 @@
 </template>
 
 <script lang="ts">
-import {ref, onMounted} from "vue";
+import {ref, onMounted, computed} from "vue";
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {Tool} from "@/util/tool";
+import store from "@/store";
+import router from "@/router";
 
 declare let hexMd5: any;
 declare let KEY: any;
@@ -135,11 +137,48 @@ export default ({
       hideOnSinglePage: false
     });
 
+    //用户信息
+    const userInfo = computed(() => store.state.user)
+
+    // /**
+    //  * 展示返回结果
+    //  * @param result
+    //  */
+    // const showMsg = (result: any) => {
+    //   if (result.status === 200) {
+    //     const data = result.data;
+    //     if (data.success) {
+    //       //给出信息提示
+    //       ElMessage({
+    //         type: 'success',
+    //         message: '成功',
+    //       })
+    //     } else {
+    //       //给出信息提示
+    //       ElMessage({
+    //         type: 'error',
+    //         message: '成功',
+    //       })
+    //     }
+    //   } else {
+    //     //给出信息提示
+    //     ElMessage({
+    //       type: 'error',
+    //       message: result.data.message,
+    //     });
+    //
+    //     router.push("/")
+    //   }
+    // };
+
     /**
      * 数据查询
      **/
     const handleQuery = (params: any) => {
       axios.get("/user/list", {
+            headers: {
+              token: userInfo.value.token
+            },
             params: {
               page: params.page,
               size: params.size,
@@ -147,19 +186,37 @@ export default ({
             }
           }
       ).then((response) => {
-        // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
-        users.value = [];
-        const data = response.data;
-        if (data.success) {
-          console.log(data);
-          users.value = data.content.list;
 
-          // 重置分页按钮
-          pagination.value.current = params.page;
-          pagination.value.pageSize = params.size;
-          pagination.value.total = data.content.total;
+        console.log("状态码：", response.status)
+
+        if (response.status === 200){
+          // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
+          users.value = [];
+          const data = response.data;
+          if (data.success) {
+            console.log(data);
+            users.value = data.content.list;
+
+            // 重置分页按钮
+            pagination.value.current = params.page;
+            pagination.value.pageSize = params.size;
+            pagination.value.total = data.content.total;
+          } else {
+            ElMessage.error(data.message);
+
+
+            //回到主页
+            router.push("/")
+          }
         } else {
-          ElMessage.error(data.message);
+          //提示信息
+          ElMessage ({
+            type: "error",
+            message: response.data.message
+          });
+
+          //回到主页
+          router.push("/")
         }
       });
     };
@@ -206,7 +263,6 @@ export default ({
     const form = ref();
     //loading
     const loading = ref(true);
-
 
 
     //保存确认对话框
@@ -333,7 +389,7 @@ export default ({
      */
     const handleDelete = (index: number, row: user) => {
       console.log(index, row)
-      axios.delete("/user/deleteUser/" + row.id)
+      axios.delete("/user/deleteUser/" + row.id, {headers: {Authorization: userInfo.value.token}})
           .then((response) => {
             const data = response.data;
             if (data.success) {

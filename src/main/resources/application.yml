@@ -27,4 +27,3 @@ mybatis:
 logging:
   level:
     com.wugang.mapper: debug
-

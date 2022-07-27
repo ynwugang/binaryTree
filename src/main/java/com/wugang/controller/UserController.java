@@ -12,15 +12,21 @@ import com.wugang.response.CommonResponse;
 import com.wugang.response.PageResponse;
 import com.wugang.response.UserLoginResponse;
 import com.wugang.service.impl.UserServiceImpl;
+import com.wugang.util.CopyUtil;
+import com.wugang.util.RedisUtil;
 import com.wugang.util.SnowFlake;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -37,6 +43,9 @@ public class UserController {
 
     @Resource
     private SnowFlake snowFlake;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 分页查询电子书列表
@@ -94,14 +103,42 @@ public class UserController {
      */
     @PostMapping("/login")
     public CommonResponse login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
-        UserLoginResponse userLoginResponse = userService.login(userLoginRequest);
+//        //执行登陆
+//        UserLoginResponse userLoginResponse = userService.login(userLoginRequest);
+
+//        String token = String.valueOf(snowFlake.nextId());
+//        LOGGER.info("输出单点登陆token：{}，并放入redis中", token);
+//        userLoginResponse.setToken(token);
+//        redisTemplate.opsForValue().set(token, JSONObject.toJSONString(userLoginResponse), 1800, TimeUnit.SECONDS);
+
+        String loginName = userLoginRequest.getLoginName();
+        String password = userLoginRequest.getPassword();
+
+        //用户信息
+        User user = userService.queryUserByLoginName(loginName);
+        //账号不存在、密码错误
+        if (user == null || !user.getPassword().equals(DigestUtils.md5DigestAsHex(password.getBytes()))) {
+            throw new ConditionException(conditionExceptionCode.LOGIN_USER_ERROR);
+        }
 
         String token = String.valueOf(snowFlake.nextId());
         LOGGER.info("输出单点登陆token：{}，并放入redis中", token);
+        UserLoginResponse userLoginResponse = CopyUtil.copy(user, UserLoginResponse.class);
         userLoginResponse.setToken(token);
-        redisTemplate.opsForValue().set(token, JSONObject.toJSONString(userLoginResponse), 1800, TimeUnit.SECONDS);
+
+        redisUtil.set(token, userLoginResponse, 1800);
 
         return new CommonResponse(userLoginResponse);
+    }
+
+    /**
+     * 未登录
+     *
+     * @return
+     */
+    @GetMapping("/no-auth")
+    public CommonResponse noAuth() {
+        return CommonResponse.fail("未登录");
     }
 
     /**
@@ -112,11 +149,7 @@ public class UserController {
      */
     @GetMapping("/logout/{token}")
     public CommonResponse logout(@PathVariable String token) {
-        if (redisTemplate.delete(token)) {
-            LOGGER.info("从redis中删除token：{}", token);
-            return CommonResponse.success();
-        } else {
-            throw new ConditionException(conditionExceptionCode.LOGOUT_USER_ERROR);
-        }
+        LOGGER.info("从redis中删除token：{}", token);
+        return CommonResponse.success();
     }
 }

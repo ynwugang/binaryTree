@@ -1,62 +1,69 @@
-package com.wugang.config;
+package com.wugang.config.shiro;
 
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.apache.shiro.crypto.hash.Md5Hash;
+
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.spring.LifecycleBeanPostProcessor;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * ShiroConfig配置
+ *
+ * @Author 大誌
+ * @Date 2019/3/30 21:50
+ * @Version 1.0
+ */
 @Configuration
 public class ShiroConfig {
-    // shiroFilterFactoryBean
-    @Bean
-    public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("webSecurityManager") DefaultWebSecurityManager webSecurityManager){
-        ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
-        //设置安全管理器
-        bean.setSecurityManager(webSecurityManager);
 
-        //设置拦截
+    @Bean("securityManager")
+    public SecurityManager securityManager(AuthRealm authRealm) {
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        securityManager.setRealm(authRealm);
+        securityManager.setRememberMeManager(null);
+        return securityManager;
+    }
+
+    @Bean("shiroFilter")
+    public ShiroFilterFactoryBean shirFilter(SecurityManager securityManager) {
+        ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
+        shiroFilter.setSecurityManager(securityManager);
+        //auth过滤
+        Map<String, Filter> filters = new HashMap<>();
+        filters.put("auth", new AuthFilter());
+        shiroFilter.setFilters(filters);
         Map<String, String> filterMap = new LinkedHashMap<>();
-        filterMap.put("/ebook/*", "authc");
-        bean.setFilterChainDefinitionMap(filterMap);
+        // anno匿名访问  auth验证
 
-        //
-        bean.setLoginUrl("/no-auth");
+        filterMap.put("/user/login", "anon");
+        filterMap.put("/user/logout/**", "anon");
+        filterMap.put("/test/**", "anon");
+        // 除了以上路径，其他都需要权限验证
+        filterMap.put("/**", "auth");
+        shiroFilter.setFilterChainDefinitionMap(filterMap);
 
-        // 设置未授权页面
-        bean.setUnauthorizedUrl("/no-auth");
+        return shiroFilter;
+    }
 
-        return bean;
+    @Bean("lifecycleBeanPostProcessor")
+    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
+        return new LifecycleBeanPostProcessor();
     }
 
 
-    /**
-     * shiro 安全管理器，用于管理所有用户的安全操作
-     * @param userRealm
-     * @return
-     */
-    @Bean(name = "webSecurityManager")
-    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("getUserRealm") UserRealm userRealm){
-        DefaultWebSecurityManager webSecurityManager = new DefaultWebSecurityManager();
-        //关联自定义realm
-        webSecurityManager.setRealm(userRealm);
-        return webSecurityManager;
-    }
-
-    /**
-     * 自定义realm
-     * @return
-     */
     @Bean
-    public UserRealm getUserRealm(){
-        UserRealm userRealm = new UserRealm();
-        //设置加密方式
-        userRealm.setCredentialsMatcher(new HashedCredentialsMatcher(Md5Hash.ALGORITHM_NAME));
-        return userRealm;
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
+        advisor.setSecurityManager(securityManager);
+        return advisor;
     }
+
 }

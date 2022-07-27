@@ -96,6 +96,37 @@ create table `user` (
 
 insert into `user` (id, `login_name`, `name`, `password`) values ('1', 'test', '测试', 'e70e2222a9d67c4f2eae107533359aa4');
 
+-- 角色表
+drop table if exists `role`;
+create table `role` (
+    `role_id` varchar(32) not null comment '角色ID',
+    `role_name` varchar(64) not null comment '角色名称',
+    `role_description` varchar(128) not null comment '角色描述',
+    `role_available` char(1) not null comment '是否可用，1：可用，0：不可用',
+    primary key (`role_id`)
+)engine = innodb default charset = utf8mb4 comment '角色表';
+
+insert into role (role_id, role_name, role_description, role_available) VALUES ('1', 'admin', '系统管理员', '1');
+insert into role (role_id, role_name, role_description, role_available) VALUES ('2', 'user', '普通用户', '1');
+
+# -- 权限表
+# drop table if exists `permission`;
+# create table `permission` (
+#     `per_id` varchar(32) not null comment '权限表名称ID',
+#     `per_name` varchar(128) not null comment '资源',
+# );
+
+-- 用户角色关系表
+drop table if exists `ur_relationship`;
+create table `ur_relationship` (
+    `ur_id` varchar(32) not null comment '主键ID',
+    `user_id` varchar(32) not null comment '用户ID',
+    `role_id` varchar(32) not null comment '角色ID',
+    primary key (ur_id)
+)engine = innodb default charset = utf8mb4 comment '用户角色关系表';
+
+insert into ur_relationship (ur_id, user_id, role_id) VALUES ('111', '1', '1');
+
 -- 电子书快照表
 drop table if exists `ebook_snapshot`;
 create table `ebook_snapshot` (
